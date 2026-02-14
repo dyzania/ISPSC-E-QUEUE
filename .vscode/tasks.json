@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Python Sentiment Server",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "cd sentiment_analysis; ..\\venv\\Scripts\\Activate.ps1; uvicorn app:app --host 127.0.0.1 --port 8000"
+      ],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "sentiment"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Uvicorn running on",
+          "endsPattern": "Uvicorn running on"
+        }
+      }
+    }
+  ]
+}

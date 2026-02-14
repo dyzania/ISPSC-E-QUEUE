@@ -1,0 +1,8 @@
+[2026-02-14 12:48:38] [IP:192.168.1.10] [USER:GUEST] [EVENT:CSRF_FAILURE] Invalid token provided. Expected: , Got: 
+[2026-02-15 00:06:29] [IP:::1] [USER:18] [EVENT:RATE_LIMIT_EXCEEDED] Action: complete_ticket, Limit: 20
+[2026-02-15 00:06:32] [IP:::1] [USER:18] [EVENT:RATE_LIMIT_EXCEEDED] Action: complete_ticket, Limit: 20
+[2026-02-15 01:22:06] [IP:::1] [USER:18] [EVENT:RATE_LIMIT_EXCEEDED] Action: set_window_status, Limit: 10
+[2026-02-15 01:22:08] [IP:::1] [USER:18] [EVENT:RATE_LIMIT_EXCEEDED] Action: set_window_status, Limit: 10
+[2026-02-15 01:22:12] [IP:::1] [USER:18] [EVENT:RATE_LIMIT_EXCEEDED] Action: set_window_status, Limit: 10
+[2026-02-15 01:22:20] [IP:::1] [USER:18] [EVENT:RATE_LIMIT_EXCEEDED] Action: set_window_status, Limit: 10
+[2026-02-15 03:46:02] [IP:::1] [USER:18] [EVENT:CSRF_FAILURE] Invalid token provided. Expected: d43449748837999f76aac784ec2adc01caebd95f7e842f3927fd0c31df996540, Got: 
