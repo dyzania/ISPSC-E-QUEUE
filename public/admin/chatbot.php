@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../models/Chatbot.php';
 include __DIR__ . '/../../includes/admin-layout-header.php';
 
 $db = Database::getInstance()->getConnection();
+$chatbot = new Chatbot();
 $message = '';
 $error = '';
 
@@ -22,8 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
-
-$chatbot = new Chatbot();
 
 // Get current chatbot data
 // Initial data check handled by migration script
