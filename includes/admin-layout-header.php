@@ -14,6 +14,9 @@ requireRole('admin');
     <?php injectTailwindConfig(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        const ANTIGRAVITY_BASE_URL = "<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>";
+    </script>
     <script src="../js/dashboard-refresh.js"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -131,6 +134,7 @@ requireRole('admin');
             </div>
 
             <div class="flex items-center space-x-6">
+                
                 <!-- Status Badge -->
                 <div class="hidden lg:flex items-center space-x-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
                     <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>

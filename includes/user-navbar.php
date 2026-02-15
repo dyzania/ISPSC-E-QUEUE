@@ -1,4 +1,4 @@
-<nav class="sticky top-0 z-[100] w-full">
+<nav class="sticky top-0 z-[9999] w-full">
     <div class="w-full">
         <div class="glass-morphism shadow-premium px-4 md:px-12 py-2 md:py-6 border-b border-white/50">
             <div class="flex items-center justify-between gap-4">

@@ -132,10 +132,13 @@ $services = $serviceModel->getAllServicesAdmin();
                                     >
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this service?');">
+                                    <form id="delete-form-<?php echo $service['id']; ?>" method="POST" class="inline-block">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="service_id" value="<?php echo $service['id']; ?>">
-                                        <button type="submit" class="text-slate-300 hover:text-rose-500 transition-all p-3 rounded-lg hover:bg-rose-50 active:scale-95" title="Delete">
+                                        <button type="button" 
+                                                onclick="handleDeleteService(<?php echo $service['id']; ?>)"
+                                                class="text-slate-300 hover:text-rose-500 transition-all p-3 rounded-lg hover:bg-rose-50 active:scale-95" 
+                                                title="Delete">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
@@ -257,6 +260,12 @@ $services = $serviceModel->getAllServicesAdmin();
 </div>
 
 <script>
+    async function handleDeleteService(serviceId) {
+        if (await equeueConfirm('Are you sure you want to delete this service? This cannot be undone.', 'Delete Service')) {
+            document.getElementById(`delete-form-${serviceId}`).submit();
+        }
+    }
+
     function openEditModal(service) {
         document.getElementById('edit_service_id').value = service.id;
         document.getElementById('edit_service_name').value = service.service_name;

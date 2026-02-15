@@ -20,18 +20,6 @@ $hasPendingFeedback = $ticketModel->hasPendingFeedback(getUserId());
 // Check for current active ticket
 $currentTicket = $ticketModel->getCurrentTicket(getUserId());
 
-// Check if user has active appointment
-$stmt = $db->prepare("
-    SELECT t.*, s.service_name 
-    FROM tickets t
-    JOIN services s ON t.service_id = s.id
-    WHERE t.user_id = ? AND t.is_appointment = 1 
-    AND t.status IN ('scheduled', 'waiting', 'called', 'serving')
-    ORDER BY t.created_at DESC
-    LIMIT 1
-");
-$stmt->execute([getUserId()]);
-$activeAppointment = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
     $serviceId = intval($_POST['service_id']);
@@ -57,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
     <script src="https://cdn.tailwindcss.com"></script>
     <?php injectTailwindConfig(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        const ANTIGRAVITY_BASE_URL = "<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>";
+    </script>
 </head>
 <body class="min-h-screen">
     <?php include __DIR__ . '/../../includes/user-navbar.php'; ?>
@@ -65,35 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
         <div class="mb-12">
             <p class="text-[10px] 3xl:text-xs font-black uppercase tracking-[0.4em] text-primary-600 mb-2">Service Selection</p>
             <h1 class="text-4xl 3xl:text-7xl font-black text-gray-900 font-heading tracking-tight leading-none">Get Your Ticket</h1>
-            <p class="text-gray-500 font-medium mt-2 3xl:text-xl">Choose walk-in or schedule an appointment.</p>
+            <p class="text-gray-500 font-medium mt-2 3xl:text-xl">Choose a service to get your ticket.</p>
         </div>
 
-        <!-- Tab Navigation -->
-        <div class="mb-8 flex gap-4">
-            <button onclick="switchTab('walkin')" id="walkinTab" class="tab-btn active px-6 py-4 rounded-xl font-bold text-lg transition-all">
-                <i class="fas fa-ticket-alt mr-2"></i> Immediate
-            </button>
-            <button onclick="switchTab('appointment')" id="appointmentTab" class="tab-btn px-8 py-4 rounded-xl font-bold text-lg transition-all">
-                <i class="fas fa-calendar-check mr-2"></i> Scheduled
-            </button>
-        </div>
 
-        <style>
-            .tab-btn {
-                background: white;
-                color: #64748b;
-                border: 2px solid #e2e8f0;
-            }
-            .tab-btn.active {
-                background: #4f46e5;
-                color: white;
-                border-color: #4f46e5;
-            }
-            .tab-btn:hover:not(.active) {
-                border-color: #4f46e5;
-                color: #4f46e5;
-            }
-        </style>
 
         <?php if ($hasPendingFeedback): ?>
             <div class="bg-secondary-600 rounded-[32px] 3xl:rounded-[48px] p-10 3xl:p-16 text-white shadow-premium mb-12 relative overflow-hidden group">
@@ -139,58 +105,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
             
             <!-- Walk-in Tab Content -->
         <div id="walkinContent" class="tab-content">
-            <?php if ($activeAppointment): ?>
-                <!-- Scheduled Ticket Alert - Blocks Walk-in -->
-                <div class="bg-amber-500 rounded-[32px] 3xl:rounded-[48px] p-10 3xl:p-16 text-white shadow-premium mb-12 relative overflow-hidden group">
-                    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16">
-                        <div class="flex items-center space-x-6 3xl:space-x-12 text-center md:text-left">
-                            <div class="w-20 3xl:w-32 h-20 3xl:h-32 bg-white/20 rounded-3xl 3xl:rounded-[48px] flex items-center justify-center animate-bounce">
-                                <i class="fas fa-calendar-check text-3xl 3xl:text-5xl"></i>
-                            </div>
-                            <div>
-                                <h2 class="text-3xl 3xl:text-5xl font-black font-heading mb-1 tracking-tight">Scheduled Ticket Active</h2>
-                                <p class="text-amber-100 font-medium 3xl:text-2xl">
-                                    <?php echo htmlspecialchars($activeAppointment['service_name']); ?> - 
-                                    <?php echo date('M j, Y \a\t g:i A', strtotime($activeAppointment['appointment_date'] . ' ' . $activeAppointment['appointment_time'])); ?>
-                                </p>
-                                <p class="text-amber-100 text-sm mt-2">You cannot create an immediate ticket while you have a scheduled ticket.</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-3">
-                            <a href="my-ticket.php" class="bg-white text-amber-600 px-10 3xl:px-16 py-5 3xl:py-8 rounded-[22px] 3xl:rounded-[32px] font-black text-lg 3xl:text-2xl hover:scale-105 transition-all shadow-xl active:scale-95 flex items-center space-x-3">
-                                <span>View Ticket</span>
-                                <i class="fas fa-arrow-right"></i>
-                            </a>
-                            <button onclick="cancelScheduledTicket(<?php echo $activeAppointment['id']; ?>)" class="bg-red-600 text-white px-10 3xl:px-16 py-5 3xl:py-8 rounded-[22px] 3xl:rounded-[32px] font-black text-lg 3xl:text-2xl hover:scale-105 transition-all shadow-xl active:scale-95 flex items-center space-x-3">
-                                <i class="fas fa-times-circle"></i>
-                                <span>Cancel Schedule</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            <?php elseif ($error): ?>
+            <?php if ($error): ?>
                 <div class="p-6 3xl:p-10 mb-10 text-secondary-800 bg-secondary-50 rounded-3xl 3xl:rounded-[32px] border border-secondary-100 flex items-center shadow-premium" role="alert">
                     <i class="fas fa-exclamation-triangle mr-4 text-2xl 3xl:text-4xl"></i>
                     <span class="font-bold text-lg 3xl:text-3xl"><?php echo $error; ?></span>
                 </div>
+            <?php endif; ?>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-8">
                 <?php foreach ($services as $service): ?>
-                    <div class="bg-white rounded-[40px] 3xl:rounded-[56px] shadow-division border border-white hover:shadow-premium hover:-translate-y-2 transition-all duration-500 overflow-hidden group">
+                    <div class="bg-white rounded-[32px] md:rounded-[40px] 3xl:rounded-[56px] shadow-division border border-white hover:shadow-premium hover:-translate-y-2 transition-all duration-500 overflow-hidden group">
                         <!-- Card Header -->
-                        <div class="px-10 pt-10 3xl:pt-14 pb-6 relative overflow-hidden">
-                            <div class="bg-primary-600 w-16 h-16 3xl:w-20 3xl:h-20 rounded-2xl 3xl:rounded-[28px] flex items-center justify-center text-white shadow-lg shadow-primary-100 mb-6 group-hover:rotate-6 transition-transform">
-                                <span class="text-xl 3xl:text-3xl font-black"><?php echo $service['service_code']; ?></span>
+                        <div class="px-6 md:px-10 pt-6 md:pt-10 3xl:pt-14 pb-4 md:pb-6 relative overflow-hidden">
+                            <div class="bg-primary-600 w-12 md:w-16 h-12 md:h-16 3xl:w-20 3xl:h-20 rounded-xl md:rounded-2xl 3xl:rounded-[28px] flex items-center justify-center text-white shadow-lg shadow-primary-100 mb-4 md:mb-6 group-hover:rotate-6 transition-transform">
+                                <span class="text-base md:text-xl 3xl:text-3xl font-black"><?php echo $service['service_code']; ?></span>
                             </div>
-                            <h3 class="text-2xl 3xl:text-4xl font-black text-gray-900 font-heading leading-tight tracking-tight"><?php echo $service['service_name']; ?></h3>
+                            <h3 class="text-lg md:text-2xl 3xl:text-4xl font-black text-gray-900 font-heading leading-tight tracking-tight"><?php echo $service['service_name']; ?></h3>
                             
                             <!-- BG Abstract Text -->
-                            <div class="absolute -right-4 top-0 text-7xl 3xl:text-9xl font-black text-slate-50 opacity-50 select-none pointer-events-none"><?php echo $service['service_code']; ?></div>
+                            <div class="absolute -right-4 top-0 text-6xl md:text-7xl 3xl:text-9xl font-black text-slate-50 opacity-50 select-none pointer-events-none"><?php echo $service['service_code']; ?></div>
                         </div>
                         
                         <!-- Card Content -->
-                        <div class="px-10 pb-10 3xl:pb-14 space-y-6 3xl:space-y-10">
-                            <p class="text-gray-500 font-medium leading-relaxed 3xl:text-xl"><?php echo nl2br(htmlspecialchars($service['description'])); ?></p>
+                        <div class="px-6 md:px-10 pb-6 md:pb-10 3xl:pb-14 space-y-4 md:space-y-6 3xl:space-y-10">
+                            <p class="text-xs md:text-sm text-gray-500 font-medium leading-relaxed 3xl:text-xl"><?php echo nl2br(htmlspecialchars($service['description'])); ?></p>
                             
                             <div class="space-y-3 3xl:space-y-5 pt-6 3xl:pt-10 border-t border-slate-50">
                                 <div class="flex items-start space-x-3">
@@ -231,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
                                     </div>
                                 <?php endif; ?>
 
-                                <button type="submit" class="w-full bg-slate-900 text-white py-5 3xl:py-8 rounded-[24px] 3xl:rounded-[32px] font-black text-lg 3xl:text-2xl shadow-xl shadow-slate-200 hover:bg-black transition-all active:scale-95 flex items-center justify-center space-x-3">
+                                <button type="submit" class="w-full bg-slate-900 text-white py-3 md:py-5 3xl:py-8 rounded-xl md:rounded-[24px] 3xl:rounded-[32px] font-black text-sm md:text-lg 3xl:text-2xl shadow-xl shadow-slate-200 hover:bg-black transition-all active:scale-95 flex items-center justify-center space-x-2 md:space-x-3">
                                     <span>Get This Ticket</span>
                                     <i class="fas fa-ticket-alt"></i>
                                 </button>
@@ -245,53 +183,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
 
         <!-- Appointment Tab Content -->
         <div id="appointmentContent" class="tab-content hidden">
-            <?php if ($activeAppointment): ?>
-                <!-- Active Appointment Alert -->
-                <div class="bg-amber-500 rounded-[32px] 3xl:rounded-[48px] p-10 3xl:p-16 text-white shadow-premium mb-12 relative overflow-hidden group">
-                    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16">
-                        <div class="flex items-center space-x-6 3xl:space-x-12 text-center md:text-left">
-                            <div class="w-20 3xl:w-32 h-20 3xl:h-32 bg-white/20 rounded-3xl 3xl:rounded-[48px] flex items-center justify-center animate-bounce">
-                                <i class="fas fa-calendar-check text-3xl 3xl:text-5xl"></i>
-                            </div>
-                            <div>
-                                <h2 class="text-3xl 3xl:text-5xl font-black font-heading mb-1 tracking-tight">Scheduled Ticket</h2>
-                                <p class="text-amber-100 font-medium 3xl:text-2xl">
-                                    <?php echo htmlspecialchars($activeAppointment['service_name']); ?> - 
-                                    <?php echo date('M j, Y \a\t g:i A', strtotime($activeAppointment['appointment_date'] . ' ' . $activeAppointment['appointment_time'])); ?>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-3">
-                            <a href="my-ticket.php" class="bg-white text-amber-600 px-10 3xl:px-16 py-5 3xl:py-8 rounded-[22px] 3xl:rounded-[32px] font-black text-lg 3xl:text-2xl hover:scale-105 transition-all shadow-xl active:scale-95 flex items-center space-x-3">
-                                <span>View Ticket</span>
-                                <i class="fas fa-arrow-right"></i>
-                            </a>
-                            <button onclick="cancelScheduledTicket(<?php echo $activeAppointment['id']; ?>)" class="bg-red-600 text-white px-10 3xl:px-16 py-5 3xl:py-8 rounded-[22px] 3xl:rounded-[32px] font-black text-lg 3xl:text-2xl hover:scale-105 transition-all shadow-xl active:scale-95 flex items-center space-x-3">
-                                <i class="fas fa-times-circle"></i>
-                                <span>Cancel Schedule</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            <?php else: ?>
-                <!-- Service Cards for Appointment -->
+            <!-- Service Cards for Appointment -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-8">
                     <?php foreach ($services as $service): ?>
-                        <div class="bg-white rounded-[40px] 3xl:rounded-[56px] shadow-division border border-white hover:shadow-premium hover:-translate-y-2 transition-all duration-500 overflow-hidden group">
+                        <div class="bg-white rounded-[32px] md:rounded-[40px] 3xl:rounded-[56px] shadow-division border border-white hover:shadow-premium hover:-translate-y-2 transition-all duration-500 overflow-hidden group">
                             <!-- Card Header -->
-                            <div class="px-10 pt-10 3xl:pt-14 pb-6 relative overflow-hidden">
-                                <div class="bg-primary-600 w-16 h-16 3xl:w-20 3xl:h-20 rounded-2xl 3xl:rounded-[28px] flex items-center justify-center text-white shadow-lg shadow-primary-100 mb-6 group-hover:rotate-6 transition-transform">
-                                    <span class="text-xl 3xl:text-3xl font-black"><?php echo $service['service_code']; ?></span>
+                            <div class="px-6 md:px-10 pt-6 md:pt-10 3xl:pt-14 pb-4 md:pb-6 relative overflow-hidden">
+                                <div class="bg-primary-600 w-12 md:w-16 h-12 md:h-16 3xl:w-20 3xl:h-20 rounded-xl md:rounded-2xl 3xl:rounded-[28px] flex items-center justify-center text-white shadow-lg shadow-primary-100 mb-4 md:mb-6 group-hover:rotate-6 transition-transform">
+                                    <span class="text-base md:text-xl 3xl:text-3xl font-black"><?php echo $service['service_code']; ?></span>
                                 </div>
-                                <h3 class="text-2xl 3xl:text-4xl font-black text-gray-900 font-heading leading-tight tracking-tight"><?php echo $service['service_name']; ?></h3>
+                                <h3 class="text-lg md:text-2xl 3xl:text-4xl font-black text-gray-900 font-heading leading-tight tracking-tight"><?php echo $service['service_name']; ?></h3>
                                 
                                 <!-- BG Abstract Text -->
-                                <div class="absolute -right-4 top-0 text-7xl 3xl:text-9xl font-black text-slate-50 opacity-50 select-none pointer-events-none"><?php echo $service['service_code']; ?></div>
+                                <div class="absolute -right-4 top-0 text-6xl md:text-7xl 3xl:text-9xl font-black text-slate-50 opacity-50 select-none pointer-events-none"><?php echo $service['service_code']; ?></div>
                             </div>
                             
                             <!-- Card Content -->
-                            <div class="px-10 pb-10 3xl:pb-14 space-y-6 3xl:space-y-10">
-                                <p class="text-gray-500 font-medium leading-relaxed 3xl:text-xl"><?php echo nl2br(htmlspecialchars($service['description'])); ?></p>
+                            <div class="px-6 md:px-10 pb-6 md:pb-10 3xl:pb-14 space-y-4 md:space-y-6 3xl:space-y-10">
+                                <p class="text-xs md:text-sm text-gray-500 font-medium leading-relaxed 3xl:text-xl"><?php echo nl2br(htmlspecialchars($service['description'])); ?></p>
                                 
                                 <div class="space-y-3 3xl:space-y-5 pt-6 3xl:pt-10 border-t border-slate-50">
                                     <div class="flex items-start space-x-3">
@@ -322,15 +231,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
                                     </div>
                                 </div>
                                 
-                                <button onclick="openAppointmentModal(<?php echo $service['id']; ?>, '<?php echo htmlspecialchars($service['service_name']); ?>')" class="w-full bg-slate-900 text-white py-5 3xl:py-8 rounded-[24px] 3xl:rounded-[32px] font-black text-lg 3xl:text-2xl shadow-xl shadow-slate-200 hover:bg-black transition-all active:scale-95 flex items-center justify-center space-x-3">
+                                <button onclick="openAppointmentModal(<?php echo $service['id']; ?>, '<?php echo htmlspecialchars($service['service_name']); ?>')" class="w-full bg-slate-900 text-white py-3 md:py-5 3xl:py-8 rounded-xl md:rounded-[24px] 3xl:rounded-[32px] font-black text-sm md:text-lg 3xl:text-2xl shadow-xl shadow-slate-200 hover:bg-black transition-all active:scale-95 flex items-center justify-center space-x-2 md:space-x-3">
                                     <span>Schedule Ticket</span>
                                     <i class="fas fa-calendar-check"></i>
                                 </button>
-                            </div>
+                            </form>
                         </div>
                     <?php endforeach; ?>
                 </div>
-            <?php endif; ?>
         </div>
 
         <!-- Appointment Modal -->
@@ -503,26 +411,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
                     const data = await response.json();
                     
                     if (data.error) {
-                        alert('Error: ' + data.error);
+                        await equeueAlert('Error: ' + data.error, 'Scheduling Failed');
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fas fa-check mr-2"></i> Confirm Schedule';
                         return;
                     }
                     
                     // Success - redirect to dashboard
-                    alert('Ticket scheduled successfully! Ticket: ' + data.ticket_number);
+                    await equeueSuccess('Ticket scheduled successfully! Ticket: ' + data.ticket_number, 'Success');
                     window.location.href = 'my-ticket.php';
                     
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Failed to schedule ticket. Please try again.');
+                    await equeueAlert('Failed to schedule ticket. Please try again.', 'Network Error');
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-check mr-2"></i> Confirm Schedule';
                 }
             }
 
             async function cancelScheduledTicket(ticketId) {
-                if (!confirm('Are you sure you want to cancel this scheduled ticket?')) {
+                if (!await equeueConfirm('Are you sure you want to cancel this scheduled ticket?', 'Cancel Ticket')) {
                     return;
                 }
 
@@ -539,15 +447,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
                     const data = await response.json();
 
                     if (data.error) {
-                        alert('Error: ' + data.error);
+                        await equeueAlert('Error: ' + data.error, 'Cancellation Failed');
                         return;
                     }
 
-                    alert('Scheduled ticket cancelled successfully!');
+                    await equeueSuccess('Scheduled ticket cancelled successfully!', 'Cancelled');
                     window.location.reload();
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Failed to cancel ticket. Please try again.');
+                    await equeueAlert('Failed to cancel ticket. Please try again.', 'Network Error');
                 }
             }
         </script>
@@ -555,5 +463,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
 
 
     <?php include __DIR__ . '/../../includes/chatbot-widget.php'; ?>
+    <script src="../js/notifications.js"></script>
 </body>
 </html>

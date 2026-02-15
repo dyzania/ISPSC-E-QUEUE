@@ -18,16 +18,14 @@ if (empty($user_message)) {
 }
 
 // Get admin data context
-$db = Database::getInstance()->getConnection();
-$stmt = $db->query("SELECT content FROM chatbot_data WHERE id = 1");
-$chatbot_data = $stmt->fetch(PDO::FETCH_ASSOC);
+require_once __DIR__ . '/../../models/Chatbot.php';
+$chatbot = new Chatbot();
+$chatbot_content = $chatbot->getContext();
 
-if (!$chatbot_data) {
-    echo json_encode(['error' => 'No admin data found. Please configure admin data first.']);
+if (!$chatbot_content) {
+    echo json_encode(['error' => 'No knowledge base found. Please configure AI context in admin settings first.']);
     exit();
 }
-
-$chatbot_content = $chatbot_data['content'];
 
 // Construct prompt
 $prompt = "Be precise, simple, provide a direct and complete answer, avoiding vague, generic, or overly broad explanations.

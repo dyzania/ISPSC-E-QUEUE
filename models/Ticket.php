@@ -583,6 +583,39 @@ class Ticket {
         return $result['avg_minutes'] ? round($result['avg_minutes']) : $defaultTime;
     }
 
+    public function getGlobalDailyAverageProcessTime() {
+        // Get average processing time from all tickets completed today
+        $stmt = $this->db->prepare("
+            SELECT AVG(TIMESTAMPDIFF(MINUTE, served_at, completed_at)) as avg_minutes
+            FROM tickets
+            WHERE status = 'completed'
+            AND served_at IS NOT NULL
+            AND completed_at IS NOT NULL
+            AND DATE(completed_at) = CURDATE()
+        ");
+        
+        $stmt->execute();
+        $result = $stmt->fetch();
+        
+        if ($result['avg_minutes']) {
+            return round($result['avg_minutes']);
+        }
+
+        // Fallback: Get average from the last 7 days across all services
+        $stmt = $this->db->prepare("
+            SELECT AVG(TIMESTAMPDIFF(MINUTE, served_at, completed_at)) as avg_minutes
+            FROM tickets
+            WHERE status = 'completed'
+            AND served_at IS NOT NULL
+            AND completed_at IS NOT NULL
+            AND DATE(completed_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        ");
+        $stmt->execute();
+        $result = $stmt->fetch();
+
+        return $result['avg_minutes'] ? round($result['avg_minutes']) : 3;
+    }
+
     public function getGlobalHistory($startDate = null, $endDate = null) {
         $query = "
             SELECT t.*, s.service_name, u.full_name as user_name, w.window_name, w.window_number,

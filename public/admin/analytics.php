@@ -84,7 +84,7 @@ $serviceStats = $stmt->fetchAll();
             <h2 class="text-2xl font-black text-gray-900 font-heading mb-10 text-center">Service Efficiency</h2>
             <div class="space-y-8">
                 <?php if(empty($serviceStats)): ?>
-                    <p class="text-gray-400 font-bold italic text-center">No ticket data recorded today.</p>
+                    <p class="text-gray-400 font-bold text-center">No ticket data recorded today.</p>
                 <?php else: ?>
                     <?php foreach($serviceStats as $stat): 
                         $percent = ($stat['count'] / max(1, $todayTickets)) * 100;

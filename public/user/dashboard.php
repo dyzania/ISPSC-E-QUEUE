@@ -25,6 +25,9 @@ $waitingTickets = $ticketModel->getWaitingQueue();
     <script src="https://cdn.tailwindcss.com"></script>
     <?php injectTailwindConfig(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        const ANTIGRAVITY_BASE_URL = "<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>";
+    </script>
     <script src="../js/dashboard-refresh.js"></script>
 </head>
 <body class="min-h-screen">
@@ -32,15 +35,15 @@ $waitingTickets = $ticketModel->getWaitingQueue();
 
     <main class="container-ultra px-4 md:px-10 py-8 4xl:py-20" id="dashboard-content-container">
         <!-- Welcome Header -->
-        <div class="mb-10 4xl:mb-20 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="mb-6 md:mb-10 4xl:mb-20 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
             <div>
-                <h1 class="text-4xl 3xl:text-6xl 5xl:text-8xl font-black text-gray-900 mb-2 font-heading tracking-tight leading-none">Live Dashboard</h1>
-                <p class="text-gray-500 font-medium 3xl:text-xl 5xl:text-3xl">Real-time status of services and windows.</p>
+                <h1 class="text-3xl md:text-4xl 3xl:text-6xl 5xl:text-8xl font-black text-gray-900 mb-1 font-heading tracking-tight leading-none">Live Dashboard</h1>
+                <p class="text-gray-500 font-medium text-xs md:text-sm 3xl:text-xl 5xl:text-3xl">Real-time status of services and windows.</p>
             </div>
             
             <?php if (!$currentTicket): ?>
-            <a href="get-ticket.php" class="bg-primary-600 text-white px-8 3xl:px-12 5xl:px-20 py-4 3xl:py-6 5xl:py-10 rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] font-black shadow-primary-premium hover:bg-primary-700 hover:-translate-y-1 transition-all flex items-center justify-center space-x-3 group text-lg 3xl:text-2xl 5xl:text-4xl">
-                <i class="fas fa-plus-circle text-xl 3xl:text-3xl 5xl:text-5xl group-hover:rotate-90 transition-transform duration-300"></i>
+            <a href="get-ticket.php" class="bg-primary-600 text-white px-6 md:px-8 py-2 md:py-4 3xl:px-12 5xl:px-20 3xl:py-6 5xl:py-10 rounded-xl md:rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] font-black shadow-primary-premium hover:bg-primary-700 hover:-translate-y-1 transition-all flex items-center justify-center space-x-2 md:space-x-3 group text-sm md:text-lg 3xl:text-2xl 5xl:text-4xl">
+                <i class="fas fa-plus-circle text-base md:text-xl 3xl:text-3xl 5xl:text-5xl group-hover:rotate-90 transition-transform duration-300"></i>
                 <span>Get New Ticket</span>
             </a>
             <?php endif; ?>
@@ -49,67 +52,67 @@ $waitingTickets = $ticketModel->getWaitingQueue();
         <!-- Notification Banner if being called -->
         <?php if ($currentTicket && ($currentTicket['status'] === 'called' || $currentTicket['status'] === 'serving')): ?>
             <!-- Notification Banner for Called/Serving -->
-            <div class="mb-6 4xl:mb-20 bg-slate-900 rounded-[2rem] 5xl:rounded-[60px] shadow-premium overflow-hidden">
-                <div class="bg-indigo-600/10 backdrop-blur-xl p-4 md:p-6 3xl:p-10 5xl:p-20 flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-6 relative text-left">
-                    <div class="flex flex-row items-center space-x-4 md:space-x-6 3xl:space-x-10 5xl:space-x-20 relative z-10 w-full md:w-auto">
-                        <div class="w-12 h-12 md:w-16 3xl:w-24 5xl:w-40 bg-indigo-600 rounded-xl md:rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] flex items-center justify-center animate-bounce shadow-lg shadow-indigo-500/20 shrink-0">
-                            <i class="fas fa-bullhorn text-white text-xl md:text-2xl 3xl:text-4xl 5xl:text-7xl"></i>
+            <div class="mb-6 4xl:mb-20 bg-slate-900 rounded-[1.5rem] md:rounded-[2rem] 5xl:rounded-[60px] shadow-premium overflow-hidden">
+                <div class="bg-indigo-600/10 backdrop-blur-xl p-3 md:p-6 3xl:p-10 5xl:p-20 flex flex-col md:flex-row items-center md:justify-between gap-3 md:gap-6 relative text-left">
+                    <div class="flex flex-row items-center space-x-3 md:space-x-6 3xl:space-x-10 5xl:space-x-20 relative z-10 w-full md:w-auto">
+                        <div class="w-10 h-10 md:w-16 3xl:w-24 5xl:w-40 bg-indigo-600 rounded-lg md:rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] flex items-center justify-center animate-bounce shadow-lg shadow-indigo-500/20 shrink-0">
+                            <i class="fas fa-bullhorn text-white text-base md:text-2xl 3xl:text-4xl 5xl:text-7xl"></i>
                         </div>
                         <div>
-                            <h2 class="text-xl md:text-2xl 3xl:text-3xl 5xl:text-5xl font-black text-white font-heading leading-tight mb-1 md:mb-0">Being Served</h2>
-                            <p class="text-indigo-200 font-bold text-sm md:text-base 3xl:text-xl 5xl:text-3xl">
+                            <h2 class="text-lg md:text-2xl 3xl:text-3xl 5xl:text-5xl font-black text-white font-heading leading-tight mb-0.5 md:mb-0 uppercase tracking-tight">Being Called</h2>
+                            <p class="text-indigo-200 font-bold text-[10px] md:text-base 3xl:text-xl 5xl:text-3xl">
                                 <?php if ($currentTicket['window_number']): ?>
-                                <span class="bg-white text-indigo-600 px-3 md:px-3 5xl:px-6 py-0.5 md:py-1 5xl:py-2 rounded-lg md:rounded-lg 5xl:rounded-2xl font-black text-sm md:text-base"><?php echo $currentTicket['window_number']; ?></span>
+                                <span class="bg-white text-indigo-600 px-2 md:px-3 5xl:px-6 py-0.5 md:py-1 5xl:py-2 rounded md:rounded-lg 5xl:rounded-2xl font-black text-[10px] md:text-base uppercase"><?php echo $currentTicket['window_number']; ?></span>
                                 <?php endif; ?>
                             </p>
                         </div>
                     </div>
-                    <a href="my-ticket.php" class="w-full md:w-auto bg-white text-slate-900 px-6 md:px-8 3xl:px-12 5xl:px-20 py-3 md:py-4 3xl:py-6 5xl:py-10 rounded-xl md:rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] font-black hover:bg-slate-50 transition-all relative z-10 flex items-center justify-center shadow-lg text-sm md:text-lg 3xl:text-2xl 5xl:text-4xl whitespace-nowrap">
+                    <a href="my-ticket.php" class="w-full md:w-auto bg-white text-slate-900 px-5 md:px-8 py-2.5 md:py-4 rounded-lg md:rounded-2xl font-black hover:bg-slate-50 transition-all relative z-10 flex items-center justify-center shadow-lg text-xs md:text-lg whitespace-nowrap">
                         <span>View Ticket</span>
-                        <i class="fas fa-arrow-right ml-2 md:ml-3 5xl:ml-6"></i>
+                        <i class="fas fa-arrow-right ml-2 md:ml-3"></i>
                     </a>
                 </div>
             </div>
         <?php elseif ($pendingFeedback): ?>
             <!-- Notification Banner for Feedback -->
-            <div class="mb-6 4xl:mb-20 bg-amber-500 rounded-[2rem] 5xl:rounded-[60px] shadow-premium overflow-hidden">
-                <div class="bg-white/10 backdrop-blur-xl p-4 md:p-6 3xl:p-10 5xl:p-20 flex flex-col md:flex-row items-center justify-between gap-6 relative">
-                    <div class="flex items-center space-x-4 md:space-x-6 3xl:space-x-10 5xl:space-x-20 relative z-10">
-                        <div class="w-12 md:w-16 3xl:w-24 5xl:w-40 h-12 md:h-16 3xl:h-24 5xl:h-40 bg-white rounded-xl md:rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] flex items-center justify-center animate-bounce shadow-lg shadow-amber-600/20">
-                            <i class="fas fa-star text-amber-500 text-xl md:text-2xl 3xl:text-4xl 5xl:text-7xl"></i>
+            <div class="mb-6 4xl:mb-20 bg-amber-500 rounded-[1.5rem] md:rounded-[2rem] 5xl:rounded-[60px] shadow-premium overflow-hidden">
+                <div class="bg-white/10 backdrop-blur-xl p-3 md:p-6 3xl:p-10 5xl:p-20 flex flex-col md:flex-row items-center justify-between gap-4 relative">
+                    <div class="flex items-center space-x-3 md:space-x-6 relative z-10">
+                        <div class="w-10 md:w-16 h-10 md:h-16 bg-white rounded-lg md:rounded-2xl flex items-center justify-center animate-bounce shadow-lg shadow-amber-600/20">
+                            <i class="fas fa-star text-amber-500 text-base md:text-2xl"></i>
                         </div>
                         <div>
-                            <h2 class="text-xl md:text-2xl 3xl:text-3xl 5xl:text-5xl font-black text-white font-heading leading-tight">Thank You!</h2>
-                            <p class="text-amber-100 font-bold text-sm md:text-base 3xl:text-xl 5xl:text-3xl">
-                                Your transaction for <span class="bg-white text-amber-600 px-2 5xl:px-4 py-0.5 5xl:py-2 rounded-lg 5xl:rounded-2xl ml-2"><?php echo $pendingFeedback['ticket_number']; ?></span> is complete.
+                            <h2 class="text-lg md:text-2xl font-black text-white font-heading leading-tight">Thank You!</h2>
+                            <p class="text-amber-100 font-bold text-[10px] md:text-base">
+                                Ticket <span class="bg-white text-amber-600 px-1.5 py-0.5 rounded font-black"><?php echo $pendingFeedback['ticket_number']; ?></span> is complete.
                             </p>
                         </div>
                     </div>
-                    <a href="my-ticket.php" class="bg-slate-900 text-white px-6 md:px-8 3xl:px-12 5xl:px-20 py-3 md:py-4 3xl:py-6 5xl:py-10 rounded-xl md:rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] font-black hover:bg-black transition-all relative z-10 flex items-center shadow-lg text-sm md:text-lg 3xl:text-2xl 5xl:text-4xl">
+                    <a href="my-ticket.php" class="bg-slate-900 text-white px-5 md:px-8 py-2.5 md:py-4 rounded-lg md:rounded-2xl font-black hover:bg-black transition-all relative z-10 flex items-center shadow-lg text-xs md:text-lg">
                         <span>Give Feedback</span>
-                        <i class="fas fa-comment-dots ml-2 md:ml-3 5xl:ml-6"></i>
+                        <i class="fas fa-comment-dots ml-2 md:ml-3"></i>
                     </a>
                 </div>
             </div>
         <?php elseif ($currentTicket): ?>
-            <div class="mb-6 4xl:mb-20 bg-white border border-primary-100 rounded-[2rem] 5xl:rounded-[60px] p-4 md:p-6 3xl:p-10 5xl:p-20 shadow-premium flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group">
-                <div class="flex items-center space-x-4 md:space-x-6 3xl:space-x-10 5xl:space-x-20">
-                    <div class="w-10 md:w-14 3xl:w-20 5xl:w-32 h-10 md:h-14 3xl:h-20 5xl:h-32 bg-primary-50 rounded-lg md:rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] flex items-center justify-center group-hover:bg-primary-100 transition-colors">
-                        <i class="fas fa-clock text-primary-600 text-lg md:text-xl 3xl:text-3xl 5xl:text-5xl"></i>
+            <div class="mb-6 4xl:mb-20 bg-white border border-primary-100 rounded-[1.5rem] md:rounded-[2rem] 5xl:rounded-[60px] p-3 md:p-6 3xl:p-10 5xl:p-20 shadow-premium flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden relative group">
+                <div class="flex items-center space-x-3 md:space-x-6 3xl:space-x-10 5xl:space-x-20 min-w-0 flex-1 w-full md:w-auto">
+                    <div class="w-8 md:w-14 h-8 md:h-14 bg-primary-50 rounded md:rounded-2xl flex items-center justify-center group-hover:bg-primary-100 transition-colors shrink-0">
+                        <i class="fas fa-clock text-primary-600 text-sm md:text-xl"></i>
                     </div>
-                    <div>
-                        <p class="text-[9px] md:text-[10px] 3xl:text-sm 5xl:text-xl font-black uppercase tracking-widest text-primary-600 mb-1 leading-none">Your Waiting Ticket</p>
-                        <h2 class="text-lg md:text-xl 3xl:text-3xl 5xl:text-5xl font-black text-gray-900 font-heading leading-tight">
-                            <?php echo $currentTicket['ticket_number']; ?> — <?php echo $currentTicket['service_name']; ?>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[8px] md:text-[10px] 3xl:text-sm 5xl:text-xl font-black uppercase tracking-[0.2em] text-primary-600 mb-0.5 md:mb-1 leading-none">Your Active Ticket</p>
+                        <h2 class="text-base md:text-xl 3xl:text-3xl 5xl:text-5xl font-black text-gray-900 font-heading leading-tight truncate">
+                            <?php echo $currentTicket['ticket_number']; ?>
                         </h2>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4 3xl:space-x-8 5xl:space-x-16 w-full md:w-auto justify-between md:justify-end">
+                <div class="flex items-center space-x-3 md:space-x-8 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-gray-50 pt-3 md:pt-0">
                     <div class="text-left md:text-right">
-                        <p class="text-[10px] 3xl:text-sm 5xl:text-xl font-bold text-gray-400 uppercase tracking-widest">Status</p>
-                        <p class="text-xs 3xl:text-base 5xl:text-2xl font-black text-primary-600">Waiting in Line</p>
+                        <p class="text-[8px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-0.5">Status</p>
+                        <p class="text-[10px] md:text-sm font-black text-primary-600 uppercase">Waiting in Line</p>
                     </div>
-                    <a href="my-ticket.php" class="bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white p-3 md:p-4 3xl:p-6 5xl:p-10 rounded-xl md:rounded-2xl 3xl:rounded-[32px] 5xl:rounded-[48px] transition-all duration-300 shadow-sm font-black text-sm md:text-lg 3xl:text-2xl 5xl:text-4xl whitespace-nowrap">
+                    <a href="my-ticket.php" class="bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white px-4 md:px-5 py-2 md:py-3 rounded md:rounded-2xl transition-all duration-300 shadow-sm font-black text-[10px] md:text-base uppercase whitespace-nowrap">
                         View Position <i class="fas fa-chevron-right ml-1 md:ml-2 text-[10px] md:text-[10px] 3xl:text-sm 5xl:text-2xl"></i>
                     </a>
                 </div>
@@ -171,7 +174,7 @@ $waitingTickets = $ticketModel->getWaitingQueue();
                                         </div>
                                     <?php else: ?>
                                         <div class="flex items-center justify-between opacity-40">
-                                            <span class="text-xl 3xl:text-3xl 5xl:text-5xl font-black text-gray-400 italic font-heading group-hover:text-slate-600 transition-colors">Counter Idle</span>
+                                            <span class="text-xl 3xl:text-3xl 5xl:text-5xl font-black text-gray-400 font-heading group-hover:text-slate-600 transition-colors">Counter Idle</span>
                                             <i class="fas fa-moon text-gray-300 text-lg 3xl:text-2xl 5xl:text-4xl group-hover:text-slate-700 transition-colors"></i>
                                         </div>
                                     <?php endif; ?>
@@ -208,22 +211,37 @@ $waitingTickets = $ticketModel->getWaitingQueue();
                                 <p class="font-black text-gray-300 tracking-widest uppercase text-xs 5xl:text-3xl">Queue is Empty</p>
                             </div>
                         <?php else: ?>
-                            <?php foreach ($waitingTickets as $ticket): ?>
-                                <div class="p-6 5xl:p-14 flex items-center justify-between hover:bg-gray-50 transition-colors group">
-                                    <div class="flex items-center space-x-4 md:space-x-6 5xl:space-x-12">
-                                        <div class="w-12 5xl:w-24 h-12 5xl:h-24 bg-slate-100 rounded-xl 5xl:rounded-[32px] flex items-center justify-center font-black text-sm 5xl:text-3xl text-slate-600 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
-                                            <?php echo $ticket['ticket_number']; ?>
+                            <?php 
+                            $globalAvgTime = $ticketModel->getGlobalDailyAverageProcessTime();
+                            foreach ($waitingTickets as $index => $ticket): 
+                                $individualWait = $index * $globalAvgTime;
+                                $isOwnTicket = $currentTicket && $ticket['id'] === $currentTicket['id'];
+                            ?>
+                                <div class="p-4 md:p-6 5xl:p-14 flex items-center justify-between hover:bg-gray-50 transition-colors group <?php echo $isOwnTicket ? 'bg-primary-50/50 border-l-4 border-primary-600' : ''; ?>">
+                                    <div class="flex items-center space-x-4 md:space-x-6 5xl:space-x-12 min-w-0 flex-1">
+                                        <div class="w-12 md:w-14 5xl:w-24 h-12 md:h-14 5xl:h-24 shrink-0">
+                                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($ticket['user_name']); ?>&background=<?php echo $isOwnTicket ? '15803d' : '0f172a'; ?>&color=fff&font-size=0.35&bold=true" 
+                                                 class="w-full h-full rounded-2xl 5xl:rounded-[32px] shadow-sm border border-slate-100 group-hover:scale-105 transition-transform" 
+                                                 alt="">
                                         </div>
-                                        <div>
-                                            <p class="font-black text-gray-900 text-sm md:text-base 5xl:text-3xl leading-none mb-1"><?php echo $ticket['service_name']; ?></p>
-                                            <p class="text-[10px] 5xl:text-xl font-bold text-gray-400 uppercase tracking-wider"><?php echo $ticket['user_name']; ?></p>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <p class="font-black text-gray-900 text-sm md:text-base 5xl:text-3xl leading-none mb-1 truncate"><?php echo $ticket['ticket_number']; ?></p>
+                                                <?php if($isOwnTicket): ?>
+                                                    <span class="bg-primary-600 text-white text-[8px] 5xl:text-lg font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">YOU</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <p class="text-[10px] 5xl:text-xl font-bold text-gray-400 uppercase tracking-wider truncate"><?php echo $ticket['service_name']; ?></p>
                                         </div>
                                     </div>
-                                    <div class="flex flex-col items-end">
-                                        <span class="px-2 5xl:px-4 py-0.5 5xl:py-2 bg-primary-50 text-primary-600 rounded-lg 5xl:rounded-2xl text-[10px] 5xl:text-xl font-black uppercase tracking-wider mb-1">
+                                    <div class="flex flex-col items-end shrink-0 ml-4">
+                                        <span class="px-2 5xl:px-4 py-0.5 5xl:py-2 bg-primary-50 text-primary-600 rounded-lg 5xl:rounded-2xl text-[9px] md:text-[10px] 5xl:text-xl font-black uppercase tracking-wider mb-1">
                                             Waiting
                                         </span>
-                                        <p class="text-[9px] 5xl:text-lg font-bold text-gray-300"><?php echo date('h:i A', strtotime($ticket['created_at'])); ?></p>
+                                        <p class="text-[9px] 5xl:text-lg font-bold text-gray-600 tracking-tight flex items-center">
+                                            <i class="fas fa-history mr-1 opacity-30 text-[8px]"></i>
+                                            ~<?php echo $individualWait; ?>m wait
+                                        </p>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -269,5 +287,6 @@ $waitingTickets = $ticketModel->getWaitingQueue();
     
 
     <?php include __DIR__ . '/../../includes/chatbot-widget.php'; ?>
+    <script src="../js/notifications.js"></script>
 </body>
 </html>

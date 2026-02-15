@@ -18,7 +18,8 @@ if (!$ticket) {
 }
 
 $position = $ticket ? $ticketModel->getQueuePosition($ticket['id']) : 0;
-$avgProcessTime = $ticket ? $ticketModel->getAverageProcessTime($ticket['service_id']) : 3;
+// Use Global Daily Average across all services as requested
+$avgProcessTime = $ticketModel->getGlobalDailyAverageProcessTime();
 $estimatedWait = $position * $avgProcessTime;
 $feedbackGiven = $ticket ? $feedbackModel->getFeedbackByTicket($ticket['id']) : null;
 $history = $ticketModel->getUserTicketHistory(getUserId());
@@ -44,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
     <script src="https://cdn.tailwindcss.com"></script>
     <?php injectTailwindConfig(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        const ANTIGRAVITY_BASE_URL = "<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>";
+    </script>
     <script src="../js/dashboard-refresh.js"></script>
 </head>
 <body class="min-h-screen pb-20">
@@ -64,26 +68,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
         <?php else: ?>
             
             <!-- Ticket Status Card -->
-            <div class="bg-white rounded-[32px] 3xl:rounded-[48px] p-2 shadow-premium border border-slate-50 mb-8 3xl:mb-12">
-                <div class="bg-slate-900 rounded-[30px] 3xl:rounded-[44px] p-6 3xl:p-10 text-white relative overflow-hidden">
+            <div class="bg-white rounded-[32px] md:rounded-[64px] p-2 shadow-ultra border border-slate-50 mb-8 md:mb-16">
+                <div class="bg-slate-900 rounded-[28px] md:rounded-[56px] p-6 md:p-20 text-white relative overflow-hidden">
                     <div class="relative z-10">
-                        <div class="flex flex-col md:flex-row items-center justify-between gap-10 3xl:gap-20">
+                        <div class="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 md:gap-20">
                             <!-- Left: Number -->
                             <div class="text-center md:text-left">
-                                <p class="text-[9px] 3xl:text-xs font-black uppercase tracking-[0.4em] text-primary-400 mb-2">Queue Ticket</p>
-                                <h2 class="text-3xl 3xl:text-5xl font-black font-heading tracking-tighter leading-none flex items-center gap-3">
+                                <p class="text-[10px] md:text-base font-black uppercase tracking-[0.4em] text-primary-400 mb-2 md:mb-4">Queue Ticket</p>
+                                <h2 class="text-4xl md:text-[8.5rem] font-black font-heading tracking-tighter leading-none">
                                     <?php echo $ticket['ticket_number']; ?>
                                 </h2>
-                                <div class="mt-4 3xl:mt-6 flex items-center justify-center md:justify-start space-x-2 3xl:space-x-4">
-                                    <span class="w-3 h-3 3xl:w-6 3xl:h-6 rounded-full bg-primary-500 animate-ping"></span>
-                                    <span class="text-2xl 3xl:text-4xl font-black uppercase tracking-[0.2em] text-primary-300">
+                                <div class="mt-4 md:mt-10 flex items-center justify-center md:justify-start space-x-3 md:space-x-6">
+                                    <span class="w-2.5 h-2.5 md:w-5 md:h-5 rounded-full bg-primary-500 animate-ping"></span>
+                                    <span class="text-xl md:text-4xl font-black uppercase tracking-[0.2em] text-primary-300">
                                         <?php 
                                             if ($ticket['is_archived'] == 1 && $ticket['status'] !== 'completed') {
                                                 echo "NOW SERVING";
                                             } elseif ($ticket['status'] === 'called') {
-                                                echo "YOU'RE BEING CALLED AND";
+                                                echo "CALLED";
                                             } elseif ($ticket['status'] === 'serving') {
-                                                echo "NOW SERVING";
+                                                echo "SERVING";
                                             } else {
                                                 echo strtoupper($ticket['status']);
                                             }
@@ -93,53 +97,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                             </div>
                             
                             <!-- Middle: Divider -->
-                            <div class="hidden md:block w-px h-32 3xl:h-48 bg-white/10 mx-4"></div>
+                            <div class="hidden md:block w-px h-32 md:h-72 bg-white/10 mx-6"></div>
                             
                             <!-- Right: Service Details -->
-                            <div class="flex-1 text-center md:text-left">
-                                <h3 class="text-lg 3xl:text-xl font-black font-heading mb-4 leading-tight opacity-50"><?php echo $ticket['service_name']; ?></h3>
-                                <div class="flex flex-col gap-4 3xl:gap-6 mt-2">
-                                    <div class="px-6 3xl:px-10 py-3 3xl:py-6 bg-white/5 rounded-[24px] border border-white/10 flex items-center space-x-6 backdrop-blur-md shadow-2xl">
-                                        <i class="fas fa-user-friends text-primary-400 text-2xl 3xl:text-4xl"></i>
+                            <div class="flex-1 w-full md:w-auto">
+                                <h3 class="text-base md:text-3xl font-black font-heading mb-4 md:mb-8 leading-tight opacity-50 text-center md:text-left"><?php echo $ticket['service_name']; ?></h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-col gap-4 md:gap-8">
+                                    <div class="px-6 md:px-12 py-4 md:py-10 bg-white/5 rounded-[22px] md:rounded-[32px] border border-white/10 flex items-center space-x-5 md:space-x-8 backdrop-blur-xl group/box">
+                                        <i class="fas fa-user-friends text-primary-400 text-xl md:text-5xl shrink-0 group-hover/box:scale-110 transition-transform"></i>
                                         <div class="flex flex-col">
-                                            <span class="text-[9px] 3xl:text-xs font-black uppercase tracking-widest text-primary-400 opacity-60 mb-1">Queue Position</span>
-                                            <span class="text-2xl 3xl:text-4xl font-black text-white">
-                                                <?php 
-                                                    if ($ticket['is_archived'] == 1 && $ticket['status'] !== 'completed') {
-                                                        echo "NOW SERVING";
-                                                    } elseif ($ticket['status'] === 'called') {
-                                                        echo "ATTEND NOW";
-                                                    } elseif ($ticket['status'] === 'serving') {
-                                                        echo "NOW SERVING";
-                                                    } else {
-                                                        echo '#' . ($position + 1);
-                                                    }
-                                                ?>
-                                            </span>
-                                            <?php if ($ticket['status'] === 'waiting'): ?>
-                                                <span class="text-xs 3xl:text-sm font-bold text-primary-300 mt-1">
-                                                    <?php echo $position; ?> <?php echo $position === 1 ? 'person' : 'people'; ?> ahead
+                                            <span class="text-[8px] md:text-sm font-black uppercase tracking-widest text-primary-400 opacity-60 mb-1 md:mb-2">Queue Position</span>
+                                            <div class="flex items-baseline space-x-3">
+                                                <span class="text-2xl md:text-5xl font-black text-white">
+                                                    <?php 
+                                                        if ($ticket['is_archived'] == 1 && $ticket['status'] !== 'completed') {
+                                                            echo "SERVING";
+                                                        } elseif ($ticket['status'] === 'called') {
+                                                            echo "NOW";
+                                                        } elseif ($ticket['status'] === 'serving') {
+                                                            echo "SERVING";
+                                                        } else {
+                                                            echo '#' . ($position + 1);
+                                                        }
+                                                    ?>
                                                 </span>
-                                            <?php endif; ?>
+                                                <?php if ($ticket['status'] === 'waiting'): ?>
+                                                    <span class="text-[10px] md:text-lg font-bold text-primary-300">
+                                                        (<?php echo $position; ?> ahead)
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="px-6 3xl:px-10 py-3 3xl:py-6 bg-white/5 rounded-[24px] border border-white/10 flex items-center space-x-6 backdrop-blur-md shadow-2xl">
-                                        <i class="fas fa-clock text-amber-400 text-2xl 3xl:text-4xl"></i>
-                                        <div class="flex flex-col">
-                                            <span class="text-[9px] 3xl:text-xs font-black uppercase tracking-widest text-amber-500/60 mb-1">Est. Process Time</span>
-                                            <span class="text-2xl 3xl:text-4xl font-black text-amber-300">
-                                                <?php 
-                                                    if ($ticket['is_archived'] == 1 && $ticket['status'] !== 'completed') {
-                                                        echo "In Service";
-                                                    } elseif ($ticket['status'] === 'called') {
-                                                        echo "Arriving";
-                                                    } elseif ($ticket['status'] === 'serving') {
-                                                        echo "In Service";
-                                                    } else {
-                                                        echo "~" . $estimatedWait . " Minutes";
-                                                    }
-                                                ?>
-                                            </span>
+                                    <div class="px-6 md:px-12 py-4 md:py-10 bg-white/5 rounded-[22px] md:rounded-[32px] border border-white/10 flex items-center space-x-5 md:space-x-8 backdrop-blur-xl group/box">
+                                        <i class="fas fa-clock text-amber-400 text-xl md:text-5xl shrink-0 group-hover/box:scale-110 transition-transform"></i>
+                                        <div class="flex flex-col w-full">
+                                            <div class="flex flex-col gap-3 md:gap-5">
+                                                <div>
+                                                    <span class="text-[8px] md:text-sm font-black uppercase tracking-widest text-amber-500/60 mb-1 md:mb-2 block">Est. Process Time</span>
+                                                    <span class="text-[12px] md:text-2xl font-bold text-amber-200/80 tracking-tight leading-none block">~<?php echo $avgProcessTime; ?>m / person</span>
+                                                </div>
+                                                <div class="pt-3 md:pt-5 border-t border-white/10">
+                                                    <span class="text-[8px] md:text-sm font-black uppercase tracking-widest text-amber-400 mb-1 md:mb-2 block">Your Waiting Time</span>
+                                                    <span class="text-2xl md:text-5xl font-black text-amber-300 leading-none block">~<?php echo $estimatedWait; ?>m wait</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -147,44 +149,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                         </div>
 
                         <?php if ($ticket['status'] === 'called' || $ticket['status'] === 'serving'): ?>
-                            <div class="mt-8 3xl:mt-16 p-1 bg-white/20 rounded-[32px] shadow-[0_0_50px_rgba(255,255,255,0.1)]">
-                                <div class="bg-indigo-600 p-6 3xl:p-12 rounded-[30px] flex flex-col items-center justify-center text-center gap-6 border border-white/20">
-                                    <div class="w-20 3xl:w-32 h-20 3xl:h-32 bg-white rounded-full flex items-center justify-center animate-bounce shadow-xl">
-                                        <i class="fas fa-desktop text-3xl 3xl:text-5xl text-indigo-600"></i>
+                            <div class="mt-6 md:mt-16 p-0.5 md:p-1 bg-white/20 rounded-[24px] md:rounded-[32px]">
+                                <div class="bg-indigo-600 p-4 md:p-12 rounded-[22px] md:rounded-[30px] flex md:flex-row flex-col items-center justify-center text-center md:text-left gap-4 md:gap-12 border border-white/20">
+                                    <div class="w-12 h-12 md:w-32 md:h-32 bg-white rounded-full flex items-center justify-center animate-bounce shadow-xl shrink-0">
+                                        <i class="fas fa-desktop text-xl md:text-5xl text-indigo-600"></i>
                                     </div>
                                     <div>
-                                        <p class="text-lg 3xl:text-2xl font-black uppercase tracking-[0.5em] text-indigo-200 mb-4 drop-shadow-md">PROCEED TO WINDOW</p>
-                                        <h4 class="text-4xl 3xl:text-[8rem] font-black tracking-tighter font-heading text-white bg-clip-text leading-none"><?php echo $ticket['window_number']; ?></h4>
-                                        <p class="text-xl 3xl:text-3xl font-bold text-indigo-100 mt-4 opacity-80"><?php echo $ticket['window_name']; ?></p>
-                                        <?php if (!empty($ticket['location_info'])): ?>
-                                            <div class="mt-6 inline-flex items-center px-6 py-3 bg-white/10 rounded-2xl border border-white/20 text-indigo-50 backdrop-blur-sm">
-                                                <i class="fas fa-map-marker-alt mr-3 text-indigo-200"></i>
-                                                <span class="text-sm 3xl:text-xl font-bold"><?php echo $ticket['location_info']; ?></span>
-                                            </div>
-                                        <?php endif; ?>
+                                        <p class="text-[8px] md:text-2xl font-black uppercase tracking-[0.5em] text-indigo-200 mb-1 md:mb-4">WINDOW</p>
+                                        <h4 class="text-3xl md:text-[8rem] font-black tracking-tighter font-heading text-white leading-none"><?php echo $ticket['window_number']; ?></h4>
                                     </div>
                                 </div>
                             </div>
-<?php endif; ?>
+                        <?php endif; ?>
                     </div>
-                    
-                    <!-- Decorative background element -->
-                    <div class="absolute -right-20 -top-20 text-[200px] 3xl:text-[300px] font-black text-white/5 select-none pointer-events-none tracking-tighter">TIC</div>
                 </div>
 
-                <!-- NEW: Action Bar for Waiting Users -->
+                <!-- Action Bar for Waiting Users -->
                 <?php if ($ticket['status'] === 'waiting'): ?>
-                    <div class="px-6 3xl:px-10 py-6 bg-slate-50 border-t border-slate-100 rounded-b-[32px] 3xl:rounded-b-[48px] flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="px-4 md:px-10 py-4 bg-slate-50 border-t border-slate-100 rounded-b-[24px] md:rounded-b-[48px] flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="flex items-center space-x-2 text-slate-400">
-                            <i class="fas fa-info-circle"></i>
-                            <span class="text-xs 3xl:text-lg font-bold uppercase tracking-widest">Need more time or changed your mind?</span>
+                            <i class="fas fa-info-circle text-[10px] md:text-base"></i>
+                            <span class="text-[8px] md:text-sm font-bold uppercase tracking-widest">Adjust sequence or cancel</span>
                         </div>
                         <div class="flex items-center space-x-3 w-full sm:w-auto">
-                            <button onclick="snoozeTicket(<?php echo $ticket['id']; ?>)" class="flex-1 sm:flex-initial px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl 3xl:rounded-2xl font-black text-[11.7px] sm:text-sm md:text-base 3xl:text-2xl hover:bg-slate-100 transition-all flex items-center justify-center">
+                            <button onclick="snoozeTicket(<?php echo $ticket['id']; ?>)" class="flex-1 sm:flex-initial px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-black text-[10px] md:text-base hover:bg-slate-100 transition-all flex items-center justify-center">
                                 <i class="fas fa-hourglass-half mr-2 text-amber-500"></i>
                                 Step Back
                             </button>
-                            <button onclick="confirmCancel(<?php echo $ticket['id']; ?>)" class="flex-1 sm:flex-initial px-6 py-3 bg-red-50 text-red-600 rounded-xl 3xl:rounded-2xl font-black text-[14px] sm:text-sm md:text-base 3xl:text-2xl hover:bg-red-100 transition-all flex items-center justify-center">
+                            <button onclick="confirmCancel(<?php echo $ticket['id']; ?>)" class="flex-1 sm:flex-initial px-4 py-2.5 bg-red-50 text-red-600 rounded-xl font-black text-[10px] md:text-base hover:bg-red-100 transition-all flex items-center justify-center">
                                 <i class="fas fa-times-circle mr-2"></i>
                                 Cancel
                             </button>
@@ -261,49 +253,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                     </div>
                 <?php else: ?>
                     <!-- Preparation Checklist -->
-                    <div class="bg-white rounded-[48px] p-10 3xl:p-16 shadow-premium border border-slate-50 overflow-hidden relative">
-                        <div class="flex flex-col md:flex-row items-start justify-between gap-10 relative z-10">
-                            <div class="flex-1">
-                                <h3 class="text-2xl 3xl:text-4xl font-black text-gray-800 font-heading tracking-tight mb-4 flex items-center">
-                                    <div class="w-10 h-10 3xl:w-16 3xl:h-16 bg-primary-600 rounded-xl 3xl:rounded-2xl flex items-center justify-center text-white mr-4 shadow-lg">
-                                        <i class="fas fa-clipboard-check text-lg 3xl:text-2xl"></i>
+                    <div class="bg-white rounded-[32px] p-6 md:p-10 shadow-premium border border-slate-50 overflow-hidden relative">
+                        <div class="flex flex-col lg:flex-row items-start justify-between gap-6 md:gap-10 relative z-10">
+                            <div class="flex-1 w-full">
+                                <h3 class="text-xl md:text-2xl font-black text-gray-800 font-heading tracking-tight mb-3 flex items-center">
+                                    <div class="w-8 h-8 md:w-12 md:h-12 bg-primary-600 rounded-lg md:rounded-xl flex items-center justify-center text-white mr-3 shadow-lg shrink-0">
+                                        <i class="fas fa-clipboard-check text-sm md:text-xl"></i>
                                     </div>
                                     Preparation Checklist
                                 </h3>
-                                <p class="text-gray-500 font-medium mb-8 text-sm 3xl:text-xl leading-relaxed max-w-xl">
-                                    Please ensure you have these requirements ready. Being prepared helps our staff serve you and others much faster!
+                                <p class="text-gray-500 font-medium mb-5 text-[10px] md:text-sm leading-relaxed max-w-xl">
+                                    Ready these requirements to help our staff serve you faster!
                                 </p>
 
-                                <?php if (!empty($ticket['requirements'])): ?>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 3xl:gap-6">
+                                 <?php if (!empty($ticket['requirements'])): ?>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                                         <?php 
                                         $reqs = preg_split('/[,\n\r]+/', $ticket['requirements']);
                                         foreach ($reqs as $req): 
                                             $req = trim($req);
                                             if (empty($req)) continue;
                                         ?>
-                                            <div class="flex items-start space-x-4 p-5 3xl:p-8 bg-slate-50 rounded-3xl border border-slate-100 group hover:border-primary-200 transition-colors">
-                                                <div class="shrink-0 mt-1 w-6 h-6 3xl:w-10 3xl:h-10 bg-white border-2 border-slate-200 rounded-lg flex items-center justify-center group-hover:border-primary-500 transition-colors">
-                                                    <i class="fas fa-check text-[10px] 3xl:text-lg text-primary-500 scale-0 group-hover:scale-100 transition-transform"></i>
-                                                </div>
-                                                <span class="text-sm 3xl:text-xl font-bold text-gray-600"><?php echo $req; ?></span>
-                                            </div>
+                                            <label class="flex items-center space-x-3 p-3 md:p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-primary-200 transition-all cursor-pointer">
+                                                <input type="checkbox" class="w-4 h-4 md:w-5 md:h-5 rounded border-2 border-slate-200 bg-white checked:bg-primary-600 checked:border-primary-600 cursor-pointer transition-all shrink-0" onchange="this.nextElementSibling.classList.toggle('line-through', this.checked); this.nextElementSibling.classList.toggle('opacity-50', this.checked)">
+                                                <span class="text-[10px] md:text-sm font-bold text-gray-600 transition-all truncate"><?php echo htmlspecialchars($req); ?></span>
+                                            </label>
                                         <?php endforeach; ?>
                                     </div>
                                 <?php else: ?>
-                                    <div class="p-8 bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-center">
-                                        <p class="text-gray-400 font-bold italic">No specific requirements for this service.</p>
+                                    <div class="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center">
+                                        <p class="text-xs text-gray-400 font-bold">No specific requirements for this service.</p>
                                     </div>
                                 <?php endif; ?>
                             </div>
 
-                            <div class="w-full md:w-80 shrink-0">
-                                <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-8 3xl:p-12 rounded-[2rem] 3xl:rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
-                                    <h4 class="text-lg 3xl:text-2xl font-black mb-4 relative z-10">Pro Tip</h4>
-                                    <p class="text-xs 3xl:text-xl text-slate-300 font-medium leading-relaxed relative z-10">
-                                        Most services take around 10-15 minutes per customer. You can use this time to review your documents or speak with our AI chatbot.
+                            <div class="w-full lg:w-64 shrink-0">
+                                <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
+                                    <h4 class="text-sm md:text-lg font-black mb-2 relative z-10 flex items-center">
+                                        <i class="fas fa-lightbulb text-amber-400 mr-2"></i>
+                                        Pro Tip
+                                    </h4>
+                                    <p class="text-[9px] md:text-xs text-slate-300 font-medium leading-relaxed relative z-10">
+                                        Today's average is <?php echo $avgProcessTime; ?>m / customer. Check your docs while waiting!
                                     </p>
-                                    <i class="fas fa-lightbulb absolute -right-4 -bottom-4 text-6xl 3xl:text-9xl opacity-10 -rotate-12"></i>
+                                    <i class="fas fa-bolt absolute -right-2 -bottom-2 text-4xl opacity-5 -rotate-12"></i>
                                 </div>
                             </div>
                         </div>
@@ -325,13 +318,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
             });
         }
 
+
+        <?php if ($ticket): ?>
         function getTicketMetaData() {
             // Helper to extract current state for LiveStatus
-            const ticketNum = "<?php echo $ticket['ticket_number']; ?>";
-            const serviceName = "<?php echo $ticket['service_name']; ?>";
-            const status = "<?php echo $ticket['status']; ?>";
-            const windowNum = "<?php echo $ticket['window_number']; ?>";
-            const windowName = "<?php echo $ticket['window_name']; ?>";
+            const ticketNum = <?php echo json_encode($ticket['ticket_number'] ?? ''); ?>;
+            const serviceName = <?php echo json_encode($ticket['service_name'] ?? ''); ?>;
+            const status = <?php echo json_encode($ticket['status'] ?? ''); ?>;
+            const windowNum = <?php echo json_encode($ticket['window_number'] ?? ''); ?>;
+            const windowName = <?php echo json_encode($ticket['window_name'] ?? ''); ?>;
             
             // Reach into DOM for dynamic values (position/wait)
             const posText = document.querySelector('.text-2xl.3xl\\:text-4xl.font-black.text-white')?.textContent || "0";
@@ -349,10 +344,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                 estimated_wait: isNaN(wait) ? 0 : wait
             };
         }
+        <?php endif; ?>
+
 
 
         async function snoozeTicket(ticketId) {
-            if (!confirm('Moving your ticket back by 3 spots will give you more time. Proceed?')) return;
+            if (!await equeueConfirm('Moving your ticket back by 3 spots will give you more time. Proceed?', 'Snooze Ticket')) return;
             
             try {
                 const response = await fetch('../api/snooze-ticket.php', {
@@ -366,21 +363,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                 
                 const data = await response.json();
                 if (data.success) {
-                    document.dispatchEvent(new CustomEvent('equeue:toast', { 
-                        detail: { type: 'success', message: 'Ticket snoozed! You moved back 3 spots.' } 
-                    }));
-                    setTimeout(() => window.location.reload(), 1500);
+                    await equeueSuccess('Ticket snoozed! You moved back 3 spots.', 'Ticket Updated');
+                    window.location.reload();
                 } else {
-                    alert(data.message || 'Error snoozing ticket');
+                    await equeueAlert(data.message || 'Error snoozing ticket', 'Action Failed');
                 }
             } catch (error) {
                 console.error(error);
-                alert('Connection error');
+                await equeueAlert('Connection error', 'Network Error');
             }
         }
 
         async function confirmCancel(ticketId) {
-            if (!confirm('Are you sure you want to leave the queue? This cannot be undone.')) return;
+            if (!await equeueConfirm('Are you sure you want to leave the queue? This cannot be undone.', 'Cancel Ticket')) return;
             
             try {
                 const response = await fetch('../api/user-cancel-ticket.php', {
@@ -394,18 +389,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                 
                 const data = await response.json();
                 if (data.success) {
-                    // Manual toast removed to prevent duplicates with backend notifications
                     window.location.href = 'dashboard.php';
                 } else {
-                    alert(data.message || 'Error cancelling ticket');
+                    await equeueAlert(data.message || 'Error cancelling ticket', 'Action Failed');
                 }
             } catch (error) {
                 console.error(error);
-                alert('Connection error');
+                await equeueAlert('Connection error', 'Network Error');
+            }
+        }
+
+        async function cancelScheduledTicket(ticketId) {
+            if (!await equeueConfirm('Are you sure you want to cancel this scheduled appointment?', 'Cancel Appointment')) return;
+            
+            try {
+                const response = await fetch('../api/cancel-appointment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': '<?php echo generateCsrfToken(); ?>'
+                    },
+                    body: JSON.stringify({ ticket_id: ticketId })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    await equeueSuccess('Scheduled appointment cancelled successfully!', 'Cancelled');
+                    window.location.href = 'dashboard.php';
+                } else {
+                    await equeueAlert(data.message || 'Error cancelling appointment', 'Action Failed');
+                }
+            } catch (error) {
+                console.error(error);
+                await equeueAlert('Connection error', 'Network Error');
             }
         }
     </script>
 
     <?php include __DIR__ . '/../../includes/chatbot-widget.php'; ?>
+    <script src="../js/notifications.js"></script>
 </body>
 </html>

@@ -23,6 +23,9 @@ $services = $windowModel->getWindowServices($window['id']);
     <script src="https://cdn.tailwindcss.com"></script>
     <?php injectTailwindConfig(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        const ANTIGRAVITY_BASE_URL = "<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>";
+    </script>
     <meta name="csrf-token" content="<?php echo generateCsrfToken(); ?>">
 </head>
 <body class="min-h-screen">
@@ -76,21 +79,23 @@ $services = $windowModel->getWindowServices($window['id']);
         </div>
     </div>
 
+    <script src="../js/notifications.js"></script>
     <script>
-        function toggleService(serviceId) {
-            fetch('../api/toggle-service.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    window_id: <?php echo $window['id']; ?>,
-                    service_id: serviceId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
+        async function toggleService(serviceId) {
+            try {
+                const response = await fetch('../api/toggle-service.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        window_id: <?php echo $window['id']; ?>,
+                        service_id: serviceId
+                    })
+                });
+                
+                const data = await response.json();
                 if(data.success) {
                     const statusSpan = document.getElementById('status-' + serviceId);
                     const card = document.getElementById('service-card-' + serviceId);
@@ -107,15 +112,15 @@ $services = $windowModel->getWindowServices($window['id']);
                         card.classList.add('bg-rose-50', 'border-rose-500');
                     }
                 } else {
-                    alert('Failed to update service status');
+                    await equeueAlert(data.message || 'Failed to update service status', 'Update Error');
                     location.reload(); 
                 }
-            })
-            .catch(err => {
+            } catch (err) {
                 console.error(err);
-                alert('An error occurred');
-            });
+                await equeueAlert('An error occurred. Please check your connection.', 'Network Error');
+            }
         }
     </script>
+    <script src="../js/notifications.js"></script>
 </body>
 </html>

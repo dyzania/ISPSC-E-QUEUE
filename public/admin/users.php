@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <tbody class="divide-y divide-slate-50">
                     <?php if (empty($users)): ?>
                         <tr>
-                            <td colspan="4" class="px-10 py-20 text-center text-gray-400 font-bold italic">No specialized users found in the directory.</td>
+                            <td colspan="4" class="px-10 py-20 text-center text-gray-400 font-bold">No specialized users found in the directory.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($users as $user): ?>

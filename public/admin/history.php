@@ -102,7 +102,7 @@ $history = $ticketModel->getGlobalHistory($startDate, $endDate);
                                 </td>
                                 <td class="px-8 py-6">
                                     <?php if ($ticket['staff_notes']): ?>
-                                        <div class="max-w-[200px] text-xs font-medium text-slate-500 italic truncate" title="<?php echo htmlspecialchars($ticket['staff_notes']); ?>">
+                                        <div class="max-w-[200px] text-xs font-medium text-slate-500 truncate" title="<?php echo htmlspecialchars($ticket['staff_notes']); ?>">
                                             "<?php echo $ticket['staff_notes']; ?>"
                                         </div>
                                     <?php else: ?>

@@ -101,7 +101,7 @@ if ($message): ?>
                         modules: {
                             toolbar: [
                                 [{ 'header': [1, 2, 3, false] }],
-                                ['bold', 'italic', 'underline', 'strike'],
+                                ['bold', 'underline', 'strike'],
                                 [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                                 [{ 'color': [] }, { 'background': [] }],
                                 ['clean']
@@ -140,16 +140,16 @@ if ($message): ?>
                             const data = await response.json();
                             
                             if (data.error) {
-                                alert('Error extracting text: ' + data.error);
+                                await equeueAlert('Error extracting text: ' + data.error, 'Extraction Failed');
                             } else if (data.text) {
                                 // Insert text at cursor position or at the end
                                 const range = quill.getSelection(true);
                                 quill.insertText(range.index, '\n' + data.text + '\n');
-                                alert('Document imported successfully!');
+                                await equeueSuccess('Document imported successfully!', 'Import Complete');
                             }
                         } catch (error) {
                             console.error('Error:', error);
-                            alert('Failed to process document.');
+                            await equeueAlert('Failed to process document.', 'System Error');
                         } finally {
                             btn.innerHTML = originalText;
                             btn.disabled = false;

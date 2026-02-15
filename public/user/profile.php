@@ -43,6 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
     <?php injectTailwindConfig(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        const ANTIGRAVITY_BASE_URL = "<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>";
+    </script>
 </head>
 <body class="min-h-screen">
     <?php include __DIR__ . '/../../includes/user-navbar.php'; ?>
@@ -172,5 +175,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
     <?php include __DIR__ . '/../../includes/chatbot-widget.php'; ?>
+    <script src="../js/notifications.js"></script>
 </body>
 </html>

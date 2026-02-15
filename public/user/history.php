@@ -18,6 +18,9 @@ $history = $ticketModel->getUserTicketHistory(getUserId());
     <script src="https://cdn.tailwindcss.com"></script>
     <?php injectTailwindConfig(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        const ANTIGRAVITY_BASE_URL = "<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>";
+    </script>
 </head>
 <body class="min-h-screen pb-20">
     <?php include __DIR__ . '/../../includes/user-navbar.php'; ?>
@@ -49,59 +52,71 @@ $history = $ticketModel->getUserTicketHistory(getUserId());
             <?php else: ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
                     <?php foreach ($history as $pastTicket): ?>
-                        <div class="bg-white rounded-[40px] p-10 shadow-division border border-slate-50 hover:shadow-premium hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden">
+                        <div class="bg-white rounded-[24px] md:rounded-[40px] p-4 md:p-10 shadow-division border border-slate-50 hover:shadow-premium hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden flex flex-col h-full">
                             <!-- Background Accent -->
-                            <div class="absolute -right-10 -bottom-10 text-[120px] font-black text-slate-50/50 group-hover:text-primary-50/50 transition-colors pointer-events-none">
+                            <div class="absolute -right-2 -bottom-2 md:-right-6 md:-bottom-6 text-[60px] md:text-[140px] font-black text-slate-50 group-hover:text-primary-50/40 transition-colors pointer-events-none z-0">
                                 <i class="fas fa-receipt"></i>
                             </div>
 
-                            <div class="relative z-10">
-                                <div class="flex items-start justify-between mb-8">
-                                    <div class="flex items-center space-x-5">
-                                        <div class="w-16 h-16 <?php echo $pastTicket['status'] === 'completed' ? 'bg-primary-50 text-primary-600' : 'bg-secondary-50 text-secondary-600'; ?> rounded-[24px] flex items-center justify-center text-xl font-black shadow-sm group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                            <div class="relative z-10 flex flex-col h-full">
+                                <!-- Top Row: Code and Status -->
+                                <div class="flex items-start justify-between mb-3 md:mb-6">
+                                    <div class="flex items-center space-x-3 md:space-x-4 min-w-0 flex-1">
+                                        <div class="w-12 h-12 md:w-16 md:h-16 shrink-0 <?php echo $pastTicket['status'] === 'completed' ? 'bg-primary-50 text-primary-600' : 'bg-secondary-50 text-secondary-600'; ?> rounded-[18px] md:rounded-[24px] flex items-center justify-center text-xs md:text-xl font-black shadow-sm group-hover:scale-105 group-hover:rotate-3 transition-all duration-500">
                                             <?php echo $pastTicket['service_code']; ?>
                                         </div>
-                                        <div>
-                                            <h4 class="text-2xl font-black text-gray-900 tracking-tight leading-none mb-2"><?php echo $pastTicket['ticket_number']; ?></h4>
-                                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center">
-                                                <i class="far fa-calendar-alt mr-2"></i>
+                                        <div class="min-w-0 flex-1">
+                                            <h4 class="text-base md:text-2xl font-black text-gray-900 tracking-tight leading-none mb-1 md:mb-1.5 truncate"><?php echo $pastTicket['ticket_number']; ?></h4>
+                                            <p class="text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center truncate">
+                                                <i class="far fa-calendar-alt mr-1.5 md:mr-2"></i>
                                                 <?php echo date('M d, Y • H:i', strtotime($pastTicket['created_at'])); ?>
                                             </p>
                                         </div>
                                     </div>
-                                    <span class="px-4 py-1.5 <?php echo $pastTicket['status'] === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-secondary-50 text-secondary-600'; ?> rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm">
-                                        <?php echo $pastTicket['status']; ?>
-                                    </span>
+                                    <div class="shrink-0">
+                                        <span class="px-2 py-0.5 md:px-4 md:py-1.5 <?php echo $pastTicket['status'] === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'; ?> rounded-lg md:rounded-xl text-[7px] md:text-[10px] font-black uppercase tracking-widest shadow-sm">
+                                            <?php echo $pastTicket['status']; ?>
+                                        </span>
+                                    </div>
                                 </div>
                                 
-                                <div class="bg-slate-50 rounded-[32px] p-6 border border-slate-100 mb-8 group-hover:bg-slate-900 transition-all duration-500">
-                                    <div class="flex flex-col gap-1">
-                                        <span class="text-[10px] font-black text-primary-600 uppercase tracking-widest group-hover:text-primary-400"><?php echo $pastTicket['service_name']; ?></span>
+                                <!-- Middle Section: Service and Duration -->
+                                <div class="flex-grow bg-slate-50 rounded-[20px] md:rounded-[32px] p-3 md:p-6 border border-slate-100 mb-3 md:mb-6 group-hover:bg-slate-900 transition-all duration-500">
+                                    <div class="flex flex-col h-full justify-between gap-2 md:gap-3">
+                                        <div class="flex flex-col gap-0.5 md:gap-1">
+                                            <span class="text-[7px] md:text-[11px] font-black text-primary-600 uppercase tracking-widest group-hover:text-primary-400">Service Area</span>
+                                            <h5 class="text-[11px] md:text-base font-black text-gray-800 leading-tight group-hover:text-white transition-colors"><?php echo $pastTicket['service_name']; ?></h5>
+                                        </div>
+                                        
                                         <?php if ($pastTicket['processing_time']): ?>
-                                            <div class="flex items-center justify-between mt-2">
-                                                <span class="text-sm font-bold text-gray-400 group-hover:text-slate-500">Duration</span>
-                                                <span class="text-lg font-black text-gray-900 group-hover:text-white"><?php echo $pastTicket['processing_time']; ?></span>
+                                            <div class="flex items-center justify-between pt-1.5 md:pt-3 border-t border-slate-200 group-hover:border-slate-800">
+                                                <span class="text-[8px] md:text-xs font-bold text-gray-400 group-hover:text-slate-500 uppercase tracking-wider">Duration</span>
+                                                <span class="text-[10px] md:text-base font-black text-gray-900 group-hover:text-white"><?php echo $pastTicket['processing_time']; ?></span>
                                             </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between pt-6 border-t border-slate-100/50">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-slate-800 transition-colors">
-                                            <i class="fas fa-desktop text-xs text-slate-400 group-hover:text-slate-500"></i>
+                                <!-- Bottom Row: Window and Success Indicator -->
+                                <div class="flex items-center justify-between pt-2.5 md:pt-4 border-t border-slate-100/50">
+                                    <div class="flex items-center space-x-2 md:space-x-3">
+                                        <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-slate-800 transition-colors">
+                                            <i class="fas fa-desktop text-[8px] md:text-[10px] text-slate-400 group-hover:text-slate-500"></i>
                                         </div>
-                                        <span class="text-sm font-black text-gray-600 group-hover:text-gray-400">Window <?php echo $pastTicket['window_number'] ?: '--'; ?></span>
+                                        <span class="text-[10px] md:text-sm font-black text-gray-500 group-hover:text-gray-400">Win <?php echo $pastTicket['window_number'] ?: '--'; ?></span>
                                     </div>
-                                    <?php if ($pastTicket['status'] === 'completed'): ?>
-                                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-100">
-                                            <i class="fas fa-check"></i>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="w-10 h-10 bg-secondary-100 text-secondary-600 rounded-full flex items-center justify-center shadow-lg shadow-secondary-100">
-                                            <i class="fas fa-times"></i>
-                                        </div>
-                                    <?php endif; ?>
+                                    
+                                    <div class="shrink-0">
+                                        <?php if ($pastTicket['status'] === 'completed'): ?>
+                                            <div class="w-6 h-6 md:w-10 md:h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-100/50">
+                                                <i class="fas fa-check text-[8px] md:text-sm"></i>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="w-6 h-6 md:w-10 md:h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center shadow-lg shadow-red-100/50">
+                                                <i class="fas fa-times text-[8px] md:text-sm"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>

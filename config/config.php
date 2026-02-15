@@ -253,7 +253,6 @@ define('AI_MODEL', $_ENV['AI_MODEL'] ?? 'stepfun/step-3.5-flash:free');
 // Theme Colors
 define('COLOR_PRIMARY', '#0c4b05'); // Dark Green
 define('COLOR_SECONDARY', '#8b0101'); // Dark Red
-define('COLOR_ACCENT', '#ffcd00'); // Gold
 
 function injectTailwindConfig() {
     echo "
@@ -297,21 +296,10 @@ function injectTailwindConfig() {
                             800: '#4c0101',
                             900: '#380101',
                         },
-                        accent: {
-                            50: '#fffbeb',
-                            100: '#fef3c7',
-                            200: '#fde68a',
-                            300: '#fcd34d',
-                            400: '#fbbf24',
-                            500: '" . COLOR_ACCENT . "',
-                            600: '#d97706',
-                            700: '#b45309',
-                            800: '#92400e',
-                            900: '#78350f',
-                        }
+
                     },
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
                         heading: ['Outfit', 'sans-serif'],
                     },
                     screens: {
@@ -387,8 +375,7 @@ function injectTailwindConfig() {
         }
 
         .mesh-1 { background-color: #0c4b05; top: -10%; left: -10%; animation-delay: 0s; }
-        .mesh-2 { background-color: #ffcd00; bottom: -10%; right: -10%; animation-delay: -5s; }
-        .mesh-3 { background-color: #8b0101; top: 40%; left: 30%; animation-delay: -10s; }
+        .mesh-2 { background-color: #8b0101; bottom: -10%; right: -10%; animation-delay: -5s; }
 
         @keyframes mesh-float {
             0% { transform: translate(0, 0) scale(1); }

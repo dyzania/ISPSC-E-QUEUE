@@ -211,12 +211,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </span>
                                 </td>
                                 <td class="px-10 py-6 text-center"> <!-- Changed text-right to text-center -->
-                                    <form method="POST" class="inline-block" onsubmit="return confirm('WARNING: Terminating <?php echo $window['window_number']; ?> will revoke all staff access codes. Proceed?');">
+                                    <form id="delete-form-<?php echo $window['id']; ?>" method="POST" class="inline-block">
                                         <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
                                         <input type="hidden" name="action" value="delete_window">
                                         <input type="hidden" name="window_id" value="<?php echo $window['id']; ?>">
                                         <input type="hidden" name="staff_id" value="<?php echo $window['staff_id']; ?>">
-                                        <button type="submit" class="text-slate-300 hover:text-rose-500 transition-all p-3 rounded-lg hover:bg-rose-50 active:scale-95" title="Terminate Module">
+                                        <button type="button" 
+                                                onclick="handleDeleteWindow(<?php echo $window['id']; ?>, '<?php echo $window['window_number']; ?>')"
+                                                class="text-slate-300 hover:text-rose-500 transition-all p-3 rounded-lg hover:bg-rose-50 active:scale-95" 
+                                                title="Terminate Module">
                                             <i class="fas fa-power-off"></i>
                                         </button>
                                     </form>
@@ -260,7 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <label class="block text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2 ml-2">Secure Passkey</label>
                 <input type="password" name="password" required class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-lg focus:ring-4 focus:ring-primary-100 focus:bg-white transition-all text-sm font-bold" placeholder="••••••••••••">
-                <p class="text-[10px] text-gray-400 mt-2 ml-2 italic">This password will be used by staff to access the terminal.</p>
+                <p class="text-[10px] text-gray-400 mt-2 ml-2">This password will be used by staff to access the terminal.</p>
             </div>
             
             <div class="flex justify-end pt-4">
@@ -271,6 +274,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </div>
+
+<script>
+    async function handleDeleteWindow(windowId, windowNumber) {
+        if (await equeueConfirm(`WARNING: Terminating ${windowNumber} will revoke all staff access codes. Proceed?`, 'Terminate Module')) {
+            document.getElementById(`delete-form-${windowId}`).submit();
+        }
+    }
+</script>
 
 <?php 
 include __DIR__ . '/../../includes/admin-layout-footer.php'; 

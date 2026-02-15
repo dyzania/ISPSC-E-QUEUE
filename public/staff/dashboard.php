@@ -391,17 +391,17 @@ if ($window) {
                         setTimeout(() => location.reload(), 1000);
                     } else {
                         setLoading(btn, false);
-                        alert(data.message || 'Error updating status');
+                        await equeueAlert(data.message || 'Error updating status', 'Status Error');
                     }
                 })
-                .catch(err => {
+                .catch(async err => {
                     console.error('toggleBreakMode error:', err);
                     setLoading(btn, false);
-                    alert('Error: ' + err.message);
+                    await equeueAlert('Error: ' + err.message, 'Network Error');
                 });
             } catch (e) {
                 console.error('Error in toggleBreakMode:', e);
-                alert('Script error: ' + e.message);
+                equeueAlert('Script error: ' + e.message, 'System Error');
             }
         }
 
@@ -424,17 +424,17 @@ if ($window) {
                         window.location.reload();
                     } else {
                         setLoading(btn, false);
-                        alert(data.message);
+                        await equeueAlert(data.message, 'Action Failed');
                     }
                 })
-                .catch(err => {
+                .catch(async err => {
                     console.error('callNext error:', err);
                     setLoading(btn, false);
-                    alert('Error: ' + err.message);
+                    await equeueAlert('Error: ' + err.message, 'Network Error');
                 });
             } catch (e) {
                 console.error('Error in callNext:', e);
-                alert('Script error: ' + e.message);
+                equeueAlert('Script error: ' + e.message, 'System Error');
             }
         }
 
@@ -460,24 +460,24 @@ if ($window) {
                         setTimeout(() => window.location.reload(), 3500);
                     } else {
                         setLoading(btn, false);
-                        alert(data.message || 'Error starting service');
+                        await equeueAlert(data.message || 'Error starting service', 'Action Failed');
                     }
                 })
-                .catch(err => {
+                .catch(async err => {
                     console.error('startServing error:', err);
                     setLoading(btn, false);
-                    alert('Error: ' + err.message);
+                    await equeueAlert('Error: ' + err.message, 'Network Error');
                 });
             } catch (e) {
                 console.error('Error in startServing:', e);
-                alert('Script error: ' + e.message);
+                equeueAlert('Script error: ' + e.message, 'System Error');
             }
         }
 
-        function cancelTicket(ticketId, btn) {
+        async function cancelTicket(ticketId, btn) {
             console.log('cancelTicket called', { ticketId });
             try {
-                if (!confirm('Are you sure you want to cancel this ticket (No Show)?')) return;
+                if (!await equeueConfirm('Are you sure you want to cancel this ticket (No Show)?', 'Confirm No-Show')) return;
                 
                 setLoading(btn, true);
                 fetch('../api/cancel-ticket.php', {
@@ -489,7 +489,7 @@ if ($window) {
                     body: JSON.stringify({ ticket_id: ticketId })
                 })
                 .then(res => res.json())
-                .then(data => {
+                .then(async data => {
                     if (data.success) {
                         // Notify and delay reload
                         document.dispatchEvent(new CustomEvent('equeue:toast', { 
@@ -498,17 +498,17 @@ if ($window) {
                         setTimeout(() => window.location.reload(), 3500);
                     } else {
                         setLoading(btn, false);
-                        alert(data.message || 'Error cancelling ticket');
+                        await equeueAlert(data.message || 'Error cancelling ticket', 'Action Failed');
                     }
                 })
-                .catch(err => {
+                .catch(async err => {
                     console.error('cancelTicket error:', err);
                     setLoading(btn, false);
-                    alert('Error: ' + err.message);
+                    await equeueAlert('Error: ' + err.message, 'Network Error');
                 });
             } catch (e) {
                 console.error('Error in cancelTicket:', e);
-                alert('Script error: ' + e.message);
+                equeueAlert('Script error: ' + e.message, 'System Error');
             }
         }
 
@@ -537,24 +537,24 @@ if ($window) {
                         window.location.reload();
                     } else {
                         setLoading(btn, false);
-                        alert(data.message);
+                        await equeueAlert(data.message, 'Action Failed');
                     }
                 })
-                .catch(err => {
+                .catch(async err => {
                     console.error('completeTicket fetch error:', err);
                     setLoading(btn, false);
-                    alert('Network error: ' + err.message);
+                    await equeueAlert('Network error: ' + err.message, 'Network Error');
                 });
             } catch (e) {
                 console.error('Error in completeTicket:', e);
-                alert('Script error: ' + e.message);
+                equeueAlert('Script error: ' + e.message, 'System Error');
             }
         }
 
-        function archiveTicket(ticketId, btn) {
+        async function archiveTicket(ticketId, btn) {
             console.log('archiveTicket called', { ticketId, btn });
             try {
-                if (!confirm('Move this ticket to archive? Use this for long-running transactions.')) return;
+                if (!await equeueConfirm('Move this ticket to archive? Use this for long-running transactions.', 'Archive Ticket')) return;
                 
                 const notesEl = document.getElementById(`staff-notes-${ticketId}`);
                 const notes = notesEl ? notesEl.value : '';
@@ -569,7 +569,7 @@ if ($window) {
                     body: JSON.stringify({ ticket_id: ticketId, notes: notes })
                 })
                 .then(res => res.json())
-                .then(data => {
+                .then(async data => {
                     console.log('archiveTicket data:', data);
                     if (data.success) {
                         // Notify and delay reload
@@ -579,17 +579,17 @@ if ($window) {
                         setTimeout(() => window.location.reload(), 3500);
                     } else {
                         setLoading(btn, false);
-                        alert(data.message || 'Error archiving ticket');
+                        await equeueAlert(data.message || 'Error archiving ticket', 'Action Failed');
                     }
                 })
-                .catch(err => {
+                .catch(async err => {
                     console.error('archiveTicket error:', err);
                     setLoading(btn, false);
-                    alert('Error: ' + err.message);
+                    await equeueAlert('Error: ' + err.message, 'Network Error');
                 });
             } catch (e) {
                 console.error('Error in archiveTicket:', e);
-                alert('Script error: ' + e.message);
+                equeueAlert('Script error: ' + e.message, 'System Error');
             }
         }
 
@@ -615,17 +615,17 @@ if ($window) {
                         setTimeout(() => window.location.reload(), 3500);
                     } else {
                         setLoading(btn, false);
-                        alert(data.message || 'Error resuming ticket');
+                        await equeueAlert(data.message || 'Error resuming ticket', 'Action Failed');
                     }
                 })
-                .catch(err => {
+                .catch(async err => {
                     console.error('resumeTicket error:', err);
                     setLoading(btn, false);
-                    alert('Error: ' + err.message);
+                    await equeueAlert('Error: ' + err.message, 'Network Error');
                 });
             } catch (e) {
                 console.error('Error in resumeTicket:', e);
-                alert('Script error: ' + e.message);
+                equeueAlert('Script error: ' + e.message, 'System Error');
             }
         }
 
@@ -723,5 +723,6 @@ if ($window) {
             }
         });
     </script>
+    <script src="../js/notifications.js"></script>
 </body>
 </html>

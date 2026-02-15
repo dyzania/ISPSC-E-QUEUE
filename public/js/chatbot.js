@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function formatMessage(text) {
     // Convert Markdown-like syntax to HTML
     text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    text = text.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
     text = text.replace(/^- (.*)$/gm, "<li>$1</li>");
     if (text.includes("<li>")) {
       text = "<ul>" + text.replace(/(<li>.*<\/li>)/g, "$1") + "</ul>";

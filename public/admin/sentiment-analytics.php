@@ -184,7 +184,7 @@ $windowBreakdown = $db->query("
                                 <?php echo $style[0]; ?>
                             </span>
                         </div>
-                        <p class="text-gray-600 font-medium italic mb-6 flex-1 text-sm line-clamp-3">"<?php echo htmlspecialchars($feedback['comment']); ?>"</p>
+                        <p class="text-gray-600 font-medium mb-6 flex-1 text-sm line-clamp-3">"<?php echo htmlspecialchars($feedback['comment']); ?>"</p>
                         <div class="pt-6 border-t border-slate-200 flex items-center justify-between">
                             <span class="text-[10px] font-black uppercase text-gray-400 tracking-widest"><?php echo $feedback['service_name']; ?></span>
                             <span class="text-[10px] font-black <?php echo $style[1]; ?> uppercase tracking-widest"><?php echo str_replace('_', ' ', $feedback['sentiment']); ?></span>

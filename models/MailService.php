@@ -101,7 +101,7 @@ class MailService {
             $notesHtml = $staffNotes ? "
                 <div style='margin-top: 20px; padding: 15px; background-color: #f8fafc; border-left: 4px solid #15803d; border-radius: 4px;'>
                     <p style='margin: 0; font-size: 14px; color: #475569; font-weight: bold;'>Message from Counter:</p>
-                    <p style='margin: 5px 0 0; font-style: italic; color: #1e293b;'>\"$staffNotes\"</p>
+                    <p style='margin: 5px 0 0; color: #1e293b;'>$staffNotes</p>
                 </div>
             " : "";
 

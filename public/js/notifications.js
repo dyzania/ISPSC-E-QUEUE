@@ -358,16 +358,295 @@ if (typeof EQueueNotifications === "undefined") {
     }
   }
 
+  class EQueueModal {
+    constructor() {
+      if (window.equeueModalInit) return;
+      window.equeueModalInit = true;
+      this.injectStyles();
+      this.createContainer();
+    }
+
+    injectStyles() {
+      if (document.getElementById("equeue-modal-styles")) return;
+      const style = document.createElement("style");
+      style.id = "equeue-modal-styles";
+      style.textContent = `
+        .equeue-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(15, 23, 42, 0.4);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          z-index: 2147483647;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          pointer-events: none;
+        }
+        .equeue-modal-overlay.active {
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+        }
+        .equeue-modal-card {
+          background: white;
+          width: 100%;
+          max-width: 380px;
+          border-radius: 28px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          overflow: hidden;
+          transform: scale(0.9) translateY(20px);
+          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .equeue-modal-overlay.active .equeue-modal-card {
+          transform: scale(1) translateY(0);
+        }
+        @media (max-width: 640px) {
+          .equeue-modal-overlay {
+            align-items: flex-end;
+            padding: 10px;
+          }
+          .equeue-modal-card {
+            max-width: 100%;
+            border-radius: 24px 24px 0 0;
+            transform: translateY(100%);
+            margin-bottom: -10px;
+          }
+          .equeue-modal-overlay.active .equeue-modal-card {
+            transform: translateY(0);
+          }
+          .equeue-modal-header {
+            padding: 24px 20px 8px;
+          }
+          .equeue-modal-body {
+            padding: 0 20px 20px;
+          }
+          .equeue-modal-footer {
+            padding: 16px 20px 28px;
+          }
+        }
+        .equeue-modal-header {
+          padding: 24px 24px 12px;
+          text-align: center;
+        }
+        .equeue-modal-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+          margin: 0 auto 16px;
+        }
+        .equeue-modal-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: 20px;
+          font-weight: 900;
+          color: #0f172a;
+          letter-spacing: -0.02em;
+          line-height: 1.2;
+        }
+        .equeue-modal-body {
+          padding: 0 24px 24px;
+          text-align: center;
+        }
+        .equeue-modal-message {
+          font-size: 14px;
+          color: #64748b;
+          font-weight: 500;
+          line-height: 1.5;
+        }
+        .equeue-modal-footer {
+          padding: 20px 24px 24px;
+          display: flex;
+          gap: 10px;
+          background: #f8fafc;
+        }
+        .equeue-modal-btn {
+          flex: 1;
+          padding: 12px;
+          border-radius: 14px;
+          font-weight: 800;
+          font-size: 13px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        .equeue-modal-btn-cancel {
+          background: white;
+          color: #64748b;
+          border: 1px solid #e2e8f0;
+        }
+        .equeue-modal-btn-cancel:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+        }
+        .equeue-modal-btn-confirm {
+          background: #0f172a;
+          color: white;
+        }
+        .equeue-modal-btn-confirm:hover {
+          background: #000;
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.4);
+        }
+        .equeue-modal-icon.alert { background: #f0fdf2; color: #059669; }
+        .equeue-modal-icon.confirm { background: #fff7ed; color: #ea580c; }
+        .equeue-modal-icon.error { background: #fef2f2; color: #dc2626; }
+      `;
+      document.head.appendChild(style);
+    }
+
+    createContainer() {
+      if (document.getElementById("equeue-modal-overlay")) return;
+      const overlay = document.createElement("div");
+      overlay.id = "equeue-modal-overlay";
+      overlay.className = "equeue-modal-overlay";
+      overlay.innerHTML = `
+        <div class="equeue-modal-card">
+          <div class="equeue-modal-header">
+            <div id="equeue-modal-icon" class="equeue-modal-icon"></div>
+            <h3 id="equeue-modal-title" class="equeue-modal-title"></h3>
+          </div>
+          <div class="equeue-modal-body">
+            <p id="equeue-modal-message" class="equeue-modal-message"></p>
+          </div>
+          <div id="equeue-modal-footer" class="equeue-modal-footer"></div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      this.overlay = overlay;
+      this.iconEl = document.getElementById("equeue-modal-icon");
+      this.titleEl = document.getElementById("equeue-modal-title");
+      this.messageEl = document.getElementById("equeue-modal-message");
+      this.footerEl = document.getElementById("equeue-modal-footer");
+    }
+
+    show(options = {}) {
+      const {
+        title = "Attention",
+        message = "",
+        type = "alert", // alert, confirm, error
+        confirmText = type === "confirm" ? "Proceed" : "Got it",
+        cancelText = "Cancel",
+        onConfirm = null,
+        onCancel = null,
+      } = options;
+
+      this.titleEl.textContent = title;
+      this.messageEl.textContent = message;
+
+      // Set Icon
+      this.iconEl.className = `equeue-modal-icon ${type}`;
+      let iconHtml = '<i class="fas fa-bell"></i>';
+      if (type === "confirm")
+        iconHtml = '<i class="fas fa-question-circle"></i>';
+      if (type === "error")
+        iconHtml = '<i class="fas fa-exclamation-triangle"></i>';
+      if (type === "success") {
+        this.iconEl.className = "equeue-modal-icon alert";
+        iconHtml = '<i class="fas fa-check-circle"></i>';
+      }
+      this.iconEl.innerHTML = iconHtml;
+
+      // Clear footer
+      this.footerEl.innerHTML = "";
+
+      // Add Cancel Button for Confirm type
+      if (type === "confirm") {
+        const cancelBtn = document.createElement("button");
+        cancelBtn.className = "equeue-modal-btn equeue-modal-btn-cancel";
+        cancelBtn.textContent = cancelText;
+        cancelBtn.onclick = () => {
+          this.hide();
+          if (onCancel) onCancel();
+        };
+        this.footerEl.appendChild(cancelBtn);
+      }
+
+      // Add Confirm Button
+      const confirmBtn = document.createElement("button");
+      confirmBtn.className = "equeue-modal-btn equeue-modal-btn-confirm";
+      confirmBtn.textContent = confirmText;
+      confirmBtn.onclick = () => {
+        this.hide();
+        if (onConfirm) onConfirm();
+      };
+      this.footerEl.appendChild(confirmBtn);
+
+      // Show overlay
+      setTimeout(() => this.overlay.classList.add("active"), 10);
+    }
+
+    hide() {
+      this.overlay.classList.remove("active");
+    }
+  }
+
+  // Global helper functions to match native syntax but async
+  window.equeueAlert = (message, title = "System Alert") => {
+    return new Promise((resolve) => {
+      if (!window.equeueModal) window.equeueModal = new EQueueModal();
+      window.equeueModal.show({
+        title,
+        message,
+        type: "alert",
+        onConfirm: resolve,
+      });
+    });
+  };
+
+  window.equeueConfirm = (message, title = "Please Confirm") => {
+    return new Promise((resolve) => {
+      if (!window.equeueModal) window.equeueModal = new EQueueModal();
+      window.equeueModal.show({
+        title,
+        message,
+        type: "confirm",
+        onConfirm: () => resolve(true),
+        onCancel: () => resolve(false),
+      });
+    });
+  };
+
+  window.equeueSuccess = (message, title = "Success") => {
+    return new Promise((resolve) => {
+      if (!window.equeueModal) window.equeueModal = new EQueueModal();
+      window.equeueModal.show({
+        title,
+        message,
+        type: "success",
+        onConfirm: resolve,
+      });
+    });
+  };
+
   // Auto-instantiate
   window.EQueueNotifications = EQueueNotifications;
-  // Don't auto-run new EQueueNotifications() here, let the page do it if needed
-  // OR just do it:
+  window.EQueueModal = EQueueModal;
+
   if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      () => new EQueueNotifications(),
-    );
+    document.addEventListener("DOMContentLoaded", () => {
+      new EQueueNotifications();
+      window.equeueModal = new EQueueModal();
+    });
   } else {
     new EQueueNotifications();
+    window.equeueModal = new EQueueModal();
   }
 }
