@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($error)) {
         if ($userModel->updateProfile(getUserId(), $fullName, $schoolId, !empty($password) ? $password : null)) {
             if (!empty($password)) {
-                // Password updated successfully - Auto Logout for security
+                // Password updated successfully,auto-logout for security
                 session_destroy();
                 header("Location: ../login.php?update=password_success");
                 exit;
@@ -119,7 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                             </div>
                         </div>
-                        <!-- Decorative element -->
                         <div class="absolute -left-10 -bottom-10 text-8xl text-primary-50/50 pointer-events-none group-hover:rotate-12 transition-transform duration-700">
                             <i class="fas fa-user-shield"></i>
                         </div>

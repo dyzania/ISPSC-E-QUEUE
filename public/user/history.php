@@ -53,8 +53,7 @@ $history = $ticketModel->getUserTicketHistory(getUserId());
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
                     <?php foreach ($history as $pastTicket): ?>
                         <div class="bg-white rounded-[24px] md:rounded-[40px] p-4 md:p-10 shadow-division border border-slate-50 hover:shadow-premium hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden flex flex-col h-full">
-                            <!-- Background Accent -->
-                            <!-- Background Accent -->
+                            
                             <div class="absolute -right-2 -bottom-2 md:-right-6 md:-bottom-6 text-[60px] md:text-[140px] font-black group-hover:<?php echo $pastTicket['status'] === 'completed' ? 'text-emerald-50/40' : 'text-red-50/40'; ?> text-slate-50 transition-colors pointer-events-none z-0">
                                 <i class="fas fa-receipt"></i>
                             </div>

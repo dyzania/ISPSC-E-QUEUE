@@ -79,3 +79,10 @@
 2. Change the default admin password (`admin@ispsc.edu.ph` / `password`).
 3. Set `display_errors = 0` in `php.ini`.
 4. Restrict access to the `.env` file.
+
+ * DEPLOYMENT NOTES FOR ispsc-queue-system.com:
+ * 1. Upload all files to the public_html or equivalent directory of your host.
+ * 2. If the domain points directly to the root, your BASE_URL should be 'https://ispsc-queue-system.com/public'
+ * 3. Update SMTP settings (lines 13-16) for email notifications to work on the server.
+ * 4. Ensure your server's PHP version is 8.0+ for better performance.
+ 

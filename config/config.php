@@ -30,7 +30,10 @@ loadEnv(__DIR__ . '/../.env');
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_NAME', 'test_db');
+define('DB_NAME', 'equeue_system');
+
+//equeue_system - dummy data
+//test_db - clean data  
 
 // Application Configuration
 // -------------------------------------------------------------------------
@@ -44,10 +47,12 @@ define('DB_NAME', 'test_db');
 // Dynamic Base URL detection for local network/mobile access
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];
-// Detect if we are in the 'public' folder or root
+
+// Detect if in the 'public' folder or root
 $currentDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
 $publicPath = (strpos($currentDir, '/public') !== false) ? '/public' : '';
-// This is a common pattern for local PHP apps to handle subdirectories
+
+// local PHP app to handle subdirectories
 $baseUrl = $protocol . '://' . $host . '/ISPSC-E-QUEUE/public';
 define('BASE_URL', $baseUrl);
 
@@ -68,9 +73,9 @@ define('SESSION_TIMEOUT', 3600); // 1 hour
 // Timezone
 date_default_timezone_set('Asia/Manila');
 
-// Error Reporting (set to 0 in production)
+// Error Reporting
 error_reporting(E_ALL);
-ini_set('display_errors', 1); // Set to 0 in production!
+ini_set('display_errors', 1); // 0 in production!
 
 // Database Connection Class
 class Database {
@@ -156,9 +161,8 @@ function getUserId() {
     return $_SESSION['user_id'] ?? null;
 }
 
-/**
- * Formats minutes into a human-readable string (Days, Hours, Minutes)
- */
+
+// Rormats minutes into (Days, Hours, Minutes)
 function formatMinutes($totalMinutes) {
     if ($totalMinutes <= 0) return "0 Minutes";
     
@@ -199,7 +203,7 @@ function checkRateLimit($action, $limit, $windowSeconds) {
     $currentTime = time();
     $windowStart = $currentTime - $windowSeconds;
     
-    // Initialize or cleanup old attempts
+    // Cleanup old attempts
     if (!isset($_SESSION['rate_limit'][$action])) {
         $_SESSION['rate_limit'][$action] = [];
     }
@@ -237,12 +241,13 @@ function logSecurityEvent($event, $details = '') {
 
 // Secure Session Configuration
 if (session_status() === PHP_SESSION_NONE) {
+
     // Set secure params before starting session
     ini_set('session.cookie_httponly', 1);
     ini_set('session.cookie_samesite', 'Strict');
     ini_set('session.use_only_cookies', 1);
     
-    // Only set secure flag if HTTPS is enabled
+    // Set secure flag if HTTPS is enabled
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
         ini_set('session.cookie_secure', 1);
     }
@@ -259,7 +264,7 @@ function jsonResponse($data, $statusCode = 200) {
     exit();
 }
 
-// Load Environment Variables (Simple implementation)
+// Load Environment Variables
 if (!isset($_ENV['MAIL_HOST'])) {
     loadEnv(__DIR__ . '/../.env');
 }
@@ -407,11 +412,3 @@ function injectTailwindConfig() {
     </style>
     ";
 }
-
-/* 
- * DEPLOYMENT NOTES FOR ispsc-queue-system.com:
- * 1. Upload all files to the public_html or equivalent directory of your host.
- * 2. If the domain points directly to the root, your BASE_URL should be 'https://ispsc-queue-system.com/public'
- * 3. Update SMTP settings (lines 13-16) for email notifications to work on the server.
- * 4. Ensure your server's PHP version is 8.0+ for better performance.
- */

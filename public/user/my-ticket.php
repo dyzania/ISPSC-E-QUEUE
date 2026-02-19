@@ -13,7 +13,7 @@ $feedbackModel = new Feedback();
 $now = time();
 $ticket = $ticketModel->getCurrentTicket(getUserId());
 
-// Helper function to format duration in seconds to "Xh Ym Zs"
+// Function to format duration in seconds to "Xh Ym Zs"
 function formatDuration($seconds) {
     if ($seconds <= 0) return "0s";
     
@@ -330,7 +330,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                             </form>
                         </div>
                         
-                        <!-- Floating graphic -->
                         <div class="absolute -right-10 bottom-0 text-[150px] text-primary-50/70 pointer-events-none opacity-50 group-hover:rotate-6 transition-transform duration-700"><i class="fas fa-quote-right"></i></div>
                     </div>
                 <?php elseif ($feedbackGiven): ?>
@@ -413,7 +412,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
     <script src="<?php echo BASE_URL; ?>/js/live-countdown.js"></script>
     <script>
         // Initialize silent auto-refresh moved to bottom for reliability
-
         function getTicketMetaData() {
             // Helper to extract current state for LiveStatus
             const ticketNum = <?php echo json_encode($ticket['ticket_number'] ?? ''); ?>;
@@ -479,32 +477,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                     window.location.href = 'dashboard.php';
                 } else {
                     await equeueAlert(data.message || 'Error cancelling ticket', 'Action Failed');
-                }
-            } catch (error) {
-                console.error(error);
-                await equeueAlert('Connection error', 'Network Error');
-            }
-        }
-
-        async function cancelScheduledTicket(ticketId) {
-            if (!await equeueConfirm('Are you sure you want to cancel this scheduled appointment?', 'Cancel Appointment')) return;
-            
-            try {
-                const response = await fetch(`${ANTIGRAVITY_BASE_URL}/api/cancel-appointment.php`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': '<?php echo generateCsrfToken(); ?>'
-                    },
-                    body: JSON.stringify({ ticket_id: ticketId })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    await equeueSuccess('Scheduled appointment cancelled successfully!', 'Cancelled');
-                    window.location.href = 'dashboard.php';
-                } else {
-                    await equeueAlert(data.message || 'Error cancelling appointment', 'Action Failed');
                 }
             } catch (error) {
                 console.error(error);

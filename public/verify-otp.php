@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 font-sans text-gray-900 bg-gray-50">
-    <!-- Mesh Gradient Background -->
+
     <div class="mesh-gradient-container">
         <div class="mesh-gradient-item mesh-1"></div>
         <div class="mesh-gradient-item mesh-2"></div>

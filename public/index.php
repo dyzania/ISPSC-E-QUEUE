@@ -40,16 +40,15 @@ if (isset($_SESSION['user_id'])) {
             50% { transform: translateY(-20px); }
         }
         .text-glow {
-            text-shadow: 0 0 20px rgba(139, 1, 1, 0.2); /* Crimson Glow (Primary) */
+            text-shadow: 0 0 20px rgba(139, 1, 1, 0.2); 
         }
         .text-glow-secondary {
-            text-shadow: 0 0 20px rgba(12, 75, 5, 0.3); /* Emerald Glow (Secondary) */
+            text-shadow: 0 0 20px rgba(12, 75, 5, 0.3);
         }
     </style>
 </head>
 <body class="bg-primary-950 text-white font-sans selection:bg-primary-500/30">
 
-    <!-- Premium Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
         <div class="container-ultra px-4 md:px-12 py-4 md:py-6 flex items-center justify-between relative">
             <div class="flex items-center space-x-3">
@@ -122,10 +121,6 @@ if (isset($_SESSION['user_id'])) {
             <?php endif; ?>
 
             <div class="max-w-4xl">
-                <div class="inline-flex items-center space-x-3 px-4 py-2 bg-primary-500/10 border border-primary-500/20 rounded-full mb-8 animate-pulse">
-                    <span class="w-2 h-2 rounded-full bg-primary-500"></span>
-                    <span class="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-primary-300">V2.0 Quantum Edition Now Live</span>
-                </div>
                 
                 <h1 class="text-5xl md:text-[7rem] font-black leading-[0.9] font-heading tracking-tighter mb-8 text-glow drop-shadow-2xl">
                     ELIMINATE THE <br>
@@ -149,7 +144,6 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </div>
 
-        <!-- Decorative Elements -->
         <div class="absolute bottom-0 right-0 w-1/3 h-1/2 bg-secondary-600/10 blur-[120px] rounded-full translate-x-1/2 translate-y-1/2"></div>
     </section>
 
@@ -167,7 +161,7 @@ if (isset($_SESSION['user_id'])) {
                     <div class="w-16 h-16 bg-primary-600/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                         <i class="fas fa-bolt text-3xl text-primary-500"></i>
                     </div>
-                    <h3 class="text-2xl font-black mb-4 font-heading text-white">Quantum Routing</h3>
+                    <h3 class="text-2xl font-black mb-4 font-heading text-white">Efficient Queue</h3>
                     <p class="text-slate-300 font-medium leading-relaxed">
                         Intelligent ticket distribution that balances load across windows instantly using proprietary algorithms.
                     </p>
@@ -202,7 +196,7 @@ if (isset($_SESSION['user_id'])) {
     <section id="stats" class="py-24 border-y border-white/5 bg-primary-900/50">
         <div class="container-ultra px-6 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
             <div>
-                <p class="text-4xl md:text-6xl font-black font-heading text-white mb-2">99.9<span class="text-primary-500">%</span></p>
+                <p class="text-4xl md:text-6xl font-black font-heading text-white mb-2">72<span class="text-primary-500">%</span></p>
                 <p class="text-xs font-black uppercase tracking-widest text-gray-500">Uptime Reliability</p>
             </div>
             <div>
@@ -210,11 +204,11 @@ if (isset($_SESSION['user_id'])) {
                 <p class="text-xs font-black uppercase tracking-widest text-gray-500">Wait Reduction</p>
             </div>
             <div>
-                <p class="text-4xl md:text-6xl font-black font-heading text-white mb-2">2<span class="text-primary-500">k+</span></p>
-                <p class="text-xs font-black uppercase tracking-widest text-gray-500">Daily Travelers</p>
+                <p class="text-4xl md:text-6xl font-black font-heading text-white mb-2">200<span class="text-primary-500"></span></p>
+                <p class="text-xs font-black uppercase tracking-widest text-gray-500">Daily Transactions</p>
             </div>
             <div>
-                <p class="text-4xl md:text-6xl font-black font-heading text-white mb-2">0<span class="text-primary-500">ms</span></p>
+                <p class="text-4xl md:text-6xl font-black font-heading text-white mb-2">25<span class="text-primary-500">ms</span></p>
                 <p class="text-xs font-black uppercase tracking-widest text-gray-500">Lag Latency</p>
             </div>
         </div>

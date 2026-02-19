@@ -4,12 +4,7 @@ from transformers import pipeline
 
 app = FastAPI(title="Sentiment Analysis API")
 
-# -------------------------------------------------------------------------
-# PRODUCTION HOSTING:
-# 1. Install dependencies: pip install fastapi uvicorn transformers torch
-# 2. Run with a production server: uvicorn app:app --host 0.0.0.0 --port 8000
-# 3. If using a firewall, ensure port 8000 is open for your PHP server's IP.
-# -------------------------------------------------------------------------
+# Firewall, ensure port 8000 is open for your PHP server's IP.
 
 model_id = "tabularisai/multilingual-sentiment-analysis"
 

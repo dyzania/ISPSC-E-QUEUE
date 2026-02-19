@@ -133,14 +133,6 @@ requireRole('admin');
 
             <div class="flex items-center space-x-6">
                 
-                <!-- Status Badge -->
-                <div class="hidden lg:flex items-center space-x-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span class="text-[10px] font-black uppercase tracking-widest">System Live</span>
-                </div>
-
-                <div class="h-8 w-px bg-white/10"></div>
-
                 <!-- Profile -->
                 <div class="flex items-center space-x-4">
                     <div class="text-right">

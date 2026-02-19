@@ -95,7 +95,7 @@ if (isset($_GET['update']) && $_GET['update'] === 'password_success') {
                     <span class="text-primary-400 font-black">REGISTRAR E-QUEUE.</span>
                 </h1>
                 <p class="text-gray-400 text-xl max-w-md font-medium leading-relaxed">
-                    Official e-queueing portal for ISPSC Main Registrar. Synchronize your appointment and manage your service flow with precision.
+                    Official e-queueing portal for ISPSC Main Registrar. Manage your walk-in service flow with precision and ease.
                 </p>
             </div>
 
@@ -106,7 +106,6 @@ if (isset($_GET['update']) && $_GET['update'] === 'password_success') {
                 </div>
             </div>
 
-            <!-- Absolute decorative elements -->
             <div class="absolute -top-20 -right-20 w-80 h-80 bg-primary-500/10 rounded-full blur-[100px]"></div>
             <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-secondary-500/10 rounded-full blur-[100px]"></div>
         </div>
@@ -119,7 +118,6 @@ if (isset($_GET['update']) && $_GET['update'] === 'password_success') {
             </a>
 
             <div class="mb-12 text-center lg:text-left">
-                <p class="text-[10px] font-black uppercase tracking-[0.5em] text-primary-500 mb-3">Gateway Alpha</p>
                 <h2 class="text-4xl font-black text-white mb-3 font-heading tracking-tight">Login</h2>
                 <p class="text-gray-500 font-medium">Enter your credentials to access the system.</p>
             </div>
@@ -192,7 +190,7 @@ if (isset($_GET['update']) && $_GET['update'] === 'password_success') {
 
             <div class="mt-12 pt-10 border-t border-primary-500/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p class="text-gray-500 font-medium text-sm">New to the system?</p>
-                <a href="register.php" class="bg-primary-500/5 hover:bg-primary-500/10 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] border border-primary-500/30 transition-all active:scale-95">Register</a>
+                <a href="register.php" class="bg-primary-500/5 hover:bg-primary-500/10 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] border border-white/30 transition-all active:scale-95">Register</a>
             </div>
         </div>
     </div>

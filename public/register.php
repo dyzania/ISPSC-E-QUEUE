@@ -83,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </a>
 
             <div class="mb-10 text-center lg:text-left">
-                <p class="text-[10px] font-black uppercase tracking-[0.5em] text-primary-500 mb-3">Protocol: Registration</p>
                 <h2 class="text-4xl font-black text-white mb-3 font-heading tracking-tight">Register</h2>
                 <p class="text-gray-500 font-medium">Create your account to join the queueing system.</p>
             </div>
@@ -175,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="mt-10 pt-8 border-t border-primary-500/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p class="text-gray-500 font-medium text-xs">Already have an account?</p>
-                <a href="login.php" class="bg-primary-500/5 hover:bg-primary-500/10 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] border border-primary-500/30 transition-all active:scale-95">Login</a>
+                <a href="login.php" class="bg-primary-500/5 hover:bg-primary-500/10 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] border border-white/30 transition-all active:scale-95">Login</a>
             </div>
         </div>
 
@@ -202,7 +201,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="relative z-10 text-right">
-                <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.4em] mb-4">Encryption Level: Quantum 256</p>
                 <div class="flex justify-end space-x-2">
                     <div class="w-2 h-2 rounded-full bg-primary-500"></div>
                     <div class="w-2 h-2 rounded-full bg-primary-500/40"></div>
@@ -210,7 +208,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <!-- Absolute decorative elements -->
             <div class="absolute -top-20 -right-20 w-80 h-80 bg-primary-500/10 rounded-full blur-[100px]"></div>
             <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-secondary-500/10 rounded-full blur-[100px]"></div>
         </div>

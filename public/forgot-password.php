@@ -22,10 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Failed to send OTP. Please try again later.";
         }
     } else {
-        // For security, don't reveal if email doesn't exist, but maybe for this internal app it's fine.
-        // Let's be vague but helpful enough.
         $error = "If an account exists with this email, an OTP has been sent."; 
-        // Actually, to improve UX for this specific system where users might be confused:
         $error = "Email not found in our records.";
     }
 }
@@ -41,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 font-sans text-gray-900 bg-gray-50">
-    <!-- Mesh Gradient Background -->
+    
     <div class="mesh-gradient-container">
         <div class="mesh-gradient-item mesh-1"></div>
         <div class="mesh-gradient-item mesh-2"></div>
