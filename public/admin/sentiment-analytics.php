@@ -4,8 +4,11 @@ require_once __DIR__ . '/../../models/Feedback.php';
 include __DIR__ . '/../../includes/admin-layout-header.php';
 ?>
 
-<!-- Add Chart.js CDN -->
+<!-- Add Export & Charting Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <?php
 $feedbackModel = new Feedback();
@@ -47,6 +50,20 @@ $windowBreakdown = $db->query("
         <div class="flex items-center space-x-3">
             <div class="px-6 py-3 bg-white border border-slate-200 rounded-lg font-bold text-gray-600 shadow-sm text-sm">
                 <i class="fas fa-calendar-alt mr-2 opacity-50"></i>Last 30 Days
+            </div>
+            
+            <div class="flex items-center p-1 bg-white border border-slate-200 rounded-xl shadow-sm">
+                <button onclick="exportToExcel()" class="px-4 py-2 hover:bg-emerald-50 text-emerald-600 rounded-lg text-xs font-black uppercase tracking-widest transition-all flex items-center">
+                    <i class="fas fa-file-excel mr-2"></i> Excel
+                </button>
+                <div class="w-px h-4 bg-slate-100 mx-1"></div>
+                <button onclick="exportToPDF()" class="px-4 py-2 hover:bg-rose-50 text-rose-600 rounded-lg text-xs font-black uppercase tracking-widest transition-all flex items-center">
+                    <i class="fas fa-file-pdf mr-2"></i> PDF
+                </button>
+                <div class="w-px h-4 bg-slate-100 mx-1"></div>
+                <button onclick="exportToWord()" class="px-4 py-2 hover:bg-blue-50 text-blue-600 rounded-lg text-xs font-black uppercase tracking-widest transition-all flex items-center">
+                    <i class="fas fa-file-word mr-2"></i> Word
+                </button>
             </div>
         </div>
     </div>
@@ -262,6 +279,93 @@ $windowBreakdown = $db->query("
             }
         });
     });
+
+    // --- Export Logic ---
+    const feedbackData = <?php echo json_encode($allFeedback); ?>;
+
+    function exportToExcel() {
+        const worksheet = XLSX.utils.json_to_sheet(feedbackData.map(f => ({
+            'Date': new Date(f.created_at).toLocaleString(),
+            'User': f.user_name,
+            'Service': f.service_name,
+            'Ticket': f.ticket_number,
+            'Sentiment': f.sentiment.replace('_', ' ').toUpperCase(),
+            'Score': f.sentiment_score,
+            'Comment': f.comment
+        })));
+        
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Feedback");
+        XLSX.writeFile(workbook, `Sentiment_Feedback_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4');
+        
+        doc.setFontSize(20);
+        doc.text("Sentiment Analytics Report", 14, 22);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+        
+        const tableBody = feedbackData.map(f => [
+            new Date(f.created_at).toLocaleDateString(),
+            f.user_name,
+            f.service_name,
+            f.sentiment.replace('_', ' ').toUpperCase(),
+            f.sentiment_score,
+            f.comment
+        ]);
+        
+        doc.autoTable({
+            startY: 40,
+            head: [['Date', 'User', 'Service', 'Sentiment', 'Score', 'Comment']],
+            body: tableBody,
+            theme: 'striped',
+            headStyles: { fillColor: [15, 23, 42], fontWeight: 'bold' },
+            styles: { fontSize: 8, cellPadding: 3 },
+            columnStyles: { 5: { cellWidth: 80 } }
+        });
+        
+        doc.save(`Sentiment_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    }
+
+    function exportToWord() {
+        let content = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><title>Sentiment Report</title></head>
+            <body style="font-family: Arial, sans-serif;">
+                <h1 style="color: #0f172a; text-align: center;">Sentiment Analytics Feed</h1>
+                <p style="color: #64748b; text-align: center;">Report Date: ${new Date().toLocaleString()}</p>
+                <hr>
+                <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                    <tr style="background-color: #f8fafc;">
+                        <th>Date</th><th>User</th><th>Service</th><th>Sentiment</th><th>Comment</th>
+                    </tr>
+                    ${feedbackData.map(f => `
+                        <tr>
+                            <td>${new Date(f.created_at).toLocaleDateString()}</td>
+                            <td>${f.user_name}</td>
+                            <td>${f.service_name}</td>
+                            <td>${f.sentiment.replace('_', ' ')}</td>
+                            <td>${f.comment}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+            </body>
+            </html>
+        `;
+        
+        const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Sentiment_Report_${new Date().toISOString().split('T')[0]}.doc`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 </script>
 
 <?php 

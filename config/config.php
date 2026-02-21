@@ -30,7 +30,7 @@ loadEnv(__DIR__ . '/../.env');
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_NAME', 'equeue_system');
+define('DB_NAME', 'equeue_systems');
 
 //equeue_system - dummy data
 //test_db - clean data  

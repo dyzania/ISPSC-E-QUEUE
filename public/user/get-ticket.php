@@ -172,21 +172,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
                             </div>
                             
                             <!-- Footer -->
-                            <?php 
-                                $reqsArray = preg_split('/[,\n\r]+/', $service['requirements']);
-                                $cleanReqs = [];
-                                foreach ($reqsArray as $req) {
-                                    $req = trim($req);
-                                    if (!empty($req)) $cleanReqs[] = $req;
-                                }
-                                $reqsJson = htmlspecialchars(json_encode($cleanReqs));
-                            ?>
                             <form id="form-<?php echo $service['id']; ?>" method="POST" action="" class="pb-8 md:pb-10 pt-6">
                                 <input type="hidden" name="service_id" value="<?php echo $service['id']; ?>">
-                                <button type="button" 
-                                        onclick="openChecklistModal(<?php echo $service['id']; ?>, '<?php echo addslashes($service['service_name']); ?>', '<?php echo $reqsJson; ?>')"
-                                        <?php echo !$isAvailable ? 'disabled' : ''; ?> 
-                                        class="w-full <?php echo $isAvailable ? 'bg-slate-900 hover:bg-black shadow-slate-200' : 'bg-slate-300 cursor-not-allowed'; ?> text-white py-3 md:py-4 3xl:py-6 rounded-lg md:rounded-xl 3xl:rounded-2xl font-black text-xs md:text-sm 3xl:text-xl shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2">
+                                <button type="submit" <?php echo !$isAvailable ? 'disabled' : ''; ?> class="w-full <?php echo $isAvailable ? 'bg-slate-900 hover:bg-black shadow-slate-200' : 'bg-slate-300 cursor-not-allowed'; ?> text-white py-3 md:py-4 3xl:py-6 rounded-lg md:rounded-xl 3xl:rounded-2xl font-black text-xs md:text-sm 3xl:text-xl shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2">
                                     <span><?php echo $isAvailable ? 'Get Ticket' : 'Currently Unavailable'; ?></span>
                                     <i class="fas <?php echo $isAvailable ? 'fa-ticket-alt' : 'fa-clock-rotate-left opacity-50'; ?>"></i>
                                 </button>
@@ -198,121 +186,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['service_id'])) {
         <?php endif; ?>
         </div>
     </main>
-
-    <!-- Requirements Checklist Modal -->
-    <div id="checklistModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
-            <div class="fixed inset-0 transition-opacity bg-slate-900/90 backdrop-blur-sm" onclick="closeChecklistModal()"></div>
-
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <div class="relative inline-block align-bottom bg-white rounded-[32px] 3xl:rounded-[48px] text-left overflow-hidden shadow-ultra transform transition-all sm:my-8 sm:align-middle sm:max-w-lg 3xl:max-w-3xl w-full animate-in zoom-in-95 duration-300">
-                <div class="px-8 pt-10 pb-8 3xl:px-16 3xl:pt-20 3xl:pb-16">
-                    <div class="mb-8 3xl:mb-12">
-                        <div class="w-16 h-16 3xl:w-24 3xl:h-24 bg-primary-50 rounded-2xl 3xl:rounded-[32px] flex items-center justify-center text-primary-600 mb-6 3xl:mb-10">
-                            <i class="fas fa-clipboard-list text-2xl 3xl:text-4xl"></i>
-                        </div>
-                        <h3 class="text-2xl 3xl:text-5xl font-black text-gray-900 font-heading leading-tight" id="modal-title">Verification Required</h3>
-                        <p class="text-gray-500 font-medium 3xl:text-2xl mt-2" id="modal-subtitle">Please confirm you have these requirements for <span id="serviceNameLabel" class="text-primary-600"></span>.</p>
-                    </div>
-
-                    <div id="checklistContainer" class="space-y-4 3xl:space-y-8 mb-10 3xl:mb-16">
-                        <!-- Checkboxes will be injected here -->
-                    </div>
-
-                    <div class="flex flex-col gap-4 3xl:gap-6">
-                        <button id="confirmTicketBtn" disabled onclick="submitTicketForm()" class="w-full bg-slate-200 text-slate-400 cursor-not-allowed py-5 3xl:py-8 rounded-2xl 3xl:rounded-[32px] font-black text-lg 3xl:text-3xl transition-all flex items-center justify-center space-x-3 group">
-                            <span>Ready to Join Queue</span>
-                            <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-                        <button onclick="closeChecklistModal()" class="w-full py-4 text-gray-400 font-bold text-sm 3xl:text-xl uppercase tracking-widest hover:text-gray-600 transition-colors">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentServiceId = null;
-
-        function openChecklistModal(serviceId, serviceName, reqsJson) {
-            currentServiceId = serviceId;
-            const requirements = JSON.parse(reqsJson);
-            const container = document.getElementById('checklistContainer');
-            const confirmBtn = document.getElementById('confirmTicketBtn');
-            const serviceLabel = document.getElementById('serviceNameLabel');
-            
-            serviceLabel.textContent = serviceName;
-            container.innerHTML = '';
-            
-            // If no requirements, we can still show a general confirmation or skip
-            if (requirements.length === 0) {
-                requirements.push("I am ready to be served");
-            }
-
-            requirements.forEach((req, index) => {
-                const div = document.createElement('div');
-                div.className = "flex items-center p-5 3xl:p-8 bg-slate-50 rounded-2xl 3xl:rounded-[32px] border border-slate-100 cursor-pointer hover:bg-slate-100 transition-all group";
-                div.onclick = (e) => {
-                    const cb = div.querySelector('input');
-                    if (e.target !== cb) cb.checked = !cb.checked;
-                    validateChecklist();
-                };
-                
-                div.innerHTML = `
-                    <div class="relative flex items-center">
-                        <input type="checkbox" id="req-${index}" class="requirement-cb w-6 h-6 3xl:w-10 3xl:h-10 rounded-lg border-slate-300 text-primary-600 focus:ring-primary-500 transition-all cursor-pointer">
-                    </div>
-                    <label for="req-${index}" class="ml-4 3xl:ml-8 text-sm 3xl:text-2xl font-bold text-gray-700 cursor-pointer flex-1">${req}</label>
-                `;
-                container.appendChild(div);
-            });
-
-            validateChecklist();
-            
-            const modal = document.getElementById('checklistModal');
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeChecklistModal() {
-            const modal = document.getElementById('checklistModal');
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            currentServiceId = null;
-        }
-
-        function validateChecklist() {
-            const checkboxes = document.querySelectorAll('.requirement-cb');
-            const confirmBtn = document.getElementById('confirmTicketBtn');
-            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-            
-            if (allChecked) {
-                confirmBtn.disabled = false;
-                confirmBtn.className = "w-full bg-primary-600 text-white py-5 3xl:py-8 rounded-2xl 3xl:rounded-[32px] font-black text-lg 3xl:text-3xl transition-all shadow-xl shadow-primary-200 hover:bg-primary-500 hover:-translate-y-1 active:scale-95 flex items-center justify-center space-x-3 group";
-            } else {
-                confirmBtn.disabled = true;
-                confirmBtn.className = "w-full bg-slate-200 text-slate-400 cursor-not-allowed py-5 3xl:py-8 rounded-2xl 3xl:rounded-[32px] font-black text-lg 3xl:text-3xl transition-all flex items-center justify-center space-x-3 group";
-            }
-        }
-
-        function submitTicketForm() {
-            if (currentServiceId) {
-                const form = document.getElementById(`form-${currentServiceId}`);
-                if (form) {
-                    // Update button in modal to show loading
-                    const btn = document.getElementById('confirmTicketBtn');
-                    btn.disabled = true;
-                    btn.innerHTML = `<i class="fas fa-circle-notch animate-spin mr-2"></i> Processing...`;
-                    
-                    form.submit();
-                }
-            }
-        }
-    </script>
 
     <?php include __DIR__ . '/../../includes/chatbot-widget.php'; ?>
     <script src="<?php echo BASE_URL; ?>/js/notifications.js"></script>

@@ -354,54 +354,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
                         ?>
                     </div>
                 <?php else: ?>
-                    <!-- Preparation Checklist -->
-                    <div class="bg-white rounded-[32px] p-6 md:p-10 shadow-premium border border-slate-50 overflow-hidden relative">
-                        <div class="flex flex-col lg:flex-row items-start justify-between gap-6 md:gap-10 relative z-10">
-                            <div class="flex-1 w-full">
-                                <h3 class="text-2xl md:text-4xl font-black text-gray-800 font-heading tracking-tight mb-4 flex items-center">
-                                    <div class="w-10 h-10 md:w-16 md:h-16 bg-primary-600 rounded-lg md:rounded-2xl flex items-center justify-center text-white mr-4 shadow-lg shrink-0">
-                                        <i class="fas fa-clipboard-check text-lg md:text-3xl"></i>
-                                    </div>
-                                    Preparation Checklist
-                                </h3>
-                                <p class="text-gray-500 font-medium mb-8 text-xs md:text-lg leading-relaxed max-w-xl">
-                                    Ready these requirements to help our staff serve you faster!
-                                </p>
+                    <!-- Service Requirements -->
+                    <div class="bg-white rounded-[32px] p-6 md:p-12 shadow-premium border border-slate-50 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-xl md:text-2xl font-black text-gray-800 font-heading tracking-tight mb-2 flex items-center">
+                                <i class="fas fa-clipboard-list text-primary-600 mr-3"></i>
+                                Service Requirements
+                            </h3>
+                            <p class="text-gray-400 text-[10px] md:text-sm font-bold uppercase tracking-widest mb-6">
+                                Please ensure you have these ready
+                            </p>
 
-                                 <?php if (!empty($ticket['requirements'])): ?>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                                        <?php 
-                                        $reqs = preg_split('/[,\n\r]+/', $ticket['requirements']);
-                                        foreach ($reqs as $req): 
-                                            $req = trim($req);
-                                            if (empty($req)) continue;
-                                        ?>
-                                            <label class="flex items-center space-x-4 px-4 md:px-8 py-8 md:py-16 bg-slate-50 rounded-2xl md:rounded-[32px] border border-slate-100 group hover:border-primary-200 transition-all cursor-pointer shadow-sm">
-                                                <input type="checkbox" class="w-5 h-5 md:w-8 md:h-8 rounded border-2 border-slate-200 bg-white checked:bg-primary-600 checked:border-primary-600 cursor-pointer transition-all shrink-0" onchange="this.nextElementSibling.classList.toggle('line-through', this.checked); this.nextElementSibling.classList.toggle('opacity-50', this.checked)">
-                                                <span class="text-xs md:text-xl font-bold text-gray-600 transition-all truncate"><?php echo htmlspecialchars($req); ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center">
-                                        <p class="text-xs text-gray-400 font-bold">No specific requirements for this service.</p>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="w-full lg:w-64 shrink-0">
-                                <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
-                                    <h4 class="text-sm md:text-xl font-black mb-3 relative z-10 flex items-center">
-                                        <i class="fas fa-robot text-primary-400 mr-3"></i>
-                                        Quick Tip
-                                    </h4>
-                                    <p class="text-[10px] md:text-sm text-slate-300 font-bold leading-relaxed relative z-10">
-                                        Have questions? Ask our AI Assistant below for instant help and guidance while you wait!
-                                    </p>
-                                    <i class="fas fa-bolt absolute -right-2 -bottom-2 text-4xl opacity-5 -rotate-12"></i>
+                            <?php if (!empty($ticket['requirements'])): ?>
+                                <div class="flex flex-wrap gap-3 md:gap-4">
+                                    <?php 
+                                    $reqs = preg_split('/[,\n\r]+/', $ticket['requirements']);
+                                    foreach ($reqs as $req): 
+                                        $req = trim($req);
+                                        if (empty($req)) continue;
+                                    ?>
+                                        <div class="px-5 py-3 md:px-8 md:py-4 bg-slate-50 border border-slate-100 rounded-2xl md:rounded-[24px] flex items-center space-x-3">
+                                            <i class="fas fa-check-circle text-primary-500 text-[10px] md:text-base"></i>
+                                            <span class="text-xs md:text-lg font-bold text-gray-600"><?php echo htmlspecialchars($req); ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
-                            </div>
+                            <?php else: ?>
+                                <div class="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center">
+                                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">No technical requirements</p>
+                                </div>
+                            <?php endif; ?>
                         </div>
+                        <div class="absolute -right-6 -bottom-6 text-[100px] text-gray-50/50 pointer-events-none z-0 rotate-12"><i class="fas fa-folder-open"></i></div>
                     </div>
                 <?php endif; ?>
 

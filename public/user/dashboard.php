@@ -136,6 +136,7 @@ function formatDuration($seconds) {
                         </a>
                     </div>
                 </div>
+
             <?php endif; ?>
         </div>
 
